@@ -10,8 +10,9 @@ New-NetFirewallRule -DisplayName “loo" -Direction Outbound -RemoteAddress Loca
 $ServicePorts = Read-Host "Hosted checked service ports:"
 New-NetFirewallRule -DisplayName “si” -Direction Inbound -RemotePort $ServicePorts -Action Allow 
 
-
-
+# disable guest/Administrator accounts
+Disable-LocalUser -Name "Administrator"
+Disable-LocalUser -Name "Guest"
 
 # disable/enable services
 set-service eventlog -start a -status running
