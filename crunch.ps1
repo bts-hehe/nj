@@ -14,6 +14,9 @@ New-NetFirewallRule -DisplayName “si” -Direction Inbound -RemotePort $Servic
 Disable-LocalUser -Name "Administrator"
 Disable-LocalUser -Name "Guest"
 
+Disable-ADAccount -Name "Administrator"
+Disable-ADAccount -Name "Guest"
+
 # disable/enable services
 set-service eventlog -start a -status running
 set-service snmptrap -start d -status stopped
