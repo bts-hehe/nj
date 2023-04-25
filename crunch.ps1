@@ -1,3 +1,7 @@
+# start firewall, fix it maybe
+
+
+# disable/enable services
 set-service eventlog -start a -status running
 set-service snmptrap -start d -status stopped
 set-service iphlpsvc -start d -status stopped
