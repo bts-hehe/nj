@@ -9,12 +9,6 @@ New-NetFirewallRule -DisplayName “local out" -Direction Outbound -RemoteAddres
 
 $ServicePorts = Read-Host "Hosted checked service ports:"
 New-NetFirewallRule -DisplayName “service in” -Direction Inbound -LocalPort $ServicePorts -Action Allow 
-<#
-$CCSIP = Read-Host "CCS IP from resmon:"
-New-NetFirewallRule -DisplayName “ccs” -Direction Outbound -RemoteAddress $CCSIP -Action Allow 
-# ALSO NEED TO ALLOW UDP 53 OUTBOUND
-
-#>
 
 # disable guest/Administrator accounts
 Disable-LocalUser -Name "Administrator"
