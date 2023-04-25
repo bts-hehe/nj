@@ -1,11 +1,12 @@
 # start firewall, fix it maybe
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Block –NotifyOnListen True
-'''
-asdfasdf
-'''
-New-NetFirewallRule -DisplayName “Allow Inbound Telnet” -Direction Inbound -Program %SystemRoot%\System32\tlntsvr.exe -RemoteAddress LocalSubnet -Action Allow
 
+<#
+multi-line comments look like this
+#>
+New-NetFirewallRule -DisplayName “loi” -Direction Inbound -RemoteAddress LocalSubnet -Action Allow # don't know if these 2 rules work
+New-NetFirewallRule -DisplayName “loo" -Direction Outbound -RemoteAddress LocalSubnet -Action Allow
 
 # disable/enable services
 set-service eventlog -start a -status running
