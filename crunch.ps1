@@ -4,11 +4,17 @@ Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Block
 
 # firewall rules
 Disable-NetFirewallRule -All
-New-NetFirewallRule -DisplayName “loi” -Direction Inbound -RemoteAddress LocalSubnet -Action Allow # don't know if these 2 rules work
-New-NetFirewallRule -DisplayName “loo" -Direction Outbound -RemoteAddress LocalSubnet -Action Allow
+New-NetFirewallRule -DisplayName “local in” -Direction Inbound -RemoteAddress LocalSubnet -Action Allow # don't know if these 2 rules work
+New-NetFirewallRule -DisplayName “local out" -Direction Outbound -RemoteAddress LocalSubnet -Action Allow
 
 $ServicePorts = Read-Host "Hosted checked service ports:"
-New-NetFirewallRule -DisplayName “si” -Direction Inbound -RemotePort $ServicePorts -Action Allow 
+New-NetFirewallRule -DisplayName “service in” -Direction Inbound -LocalPort $ServicePorts -Action Allow 
+<#
+$CCSIP = Read-Host "CCS IP from resmon:"
+New-NetFirewallRule -DisplayName “ccs” -Direction Outbound -RemoteAddress $CCSIP -Action Allow 
+# ALSO NEED TO ALLOW UDP 53 OUTBOUND
+
+#>
 
 # disable guest/Administrator accounts
 Disable-LocalUser -Name "Administrator"
