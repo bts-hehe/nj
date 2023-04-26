@@ -26,15 +26,24 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBl
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
 
-# disable/enable services
+# misc hardening
+net share C:\ /delete
+
+# disable/enable services/feaures
+write-output "beginning to disable services - check readme for critical services"
+
 set-service eventlog -start a -status running
 set-service snmptrap -start d -status stopped
 set-service iphlpsvc -start d -status stopped
-
-# disable / enable windows features
-Disable-PSRemoting -Force
 Get-Service -Name WinRM | Stop-Service -Force
 Set-Service -Name WinRM -StartupType Disabled -Status Stopped -Confirm $false
+
+Disable-PSRemoting -Force
+
+Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart  
+Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
+
+#Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force
 
 # passwords
 Get-LocalUser | Set-LocalUser -Password (Read-Host -AsSecureString "local pass: ")
