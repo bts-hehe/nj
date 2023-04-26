@@ -39,11 +39,13 @@ Get-Service -Name WinRM | Stop-Service -Force
 Set-Service -Name WinRM -StartupType Disabled -Status Stopped -Confirm $false
 
 Disable-PSRemoting -Force
+Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
 
 Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart  
 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
 
 #Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force
+
 
 # passwords
 Get-LocalUser | Set-LocalUser -Password (Read-Host -AsSecureString "local pass: ")
