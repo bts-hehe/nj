@@ -31,6 +31,11 @@ set-service eventlog -start a -status running
 set-service snmptrap -start d -status stopped
 set-service iphlpsvc -start d -status stopped
 
+# disable / enable windows features
+Disable-PSRemoting -Force
+Get-Service -Name WinRM | Stop-Service -Force
+Set-Service -Name WinRM -StartupType Disabled -Status Stopped -Confirm $false
+
 # passwords
 Get-LocalUser | Set-LocalUser -Password (Read-Host -AsSecureString "local pass: ")
 Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass:")
