@@ -9,6 +9,8 @@ Disable-LocalUser -Name "Guest"
 Disable-ADAccount -Name "Administrator"
 Disable-ADAccount -Name "Guest"
 
+# need to add section for disabling users not on readme
+
 # Defender
 start-service WinDefend
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
