@@ -51,7 +51,7 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection 
 # misc hardening
 net share C:\ /delete
 
-# disable/enable services/feaures
+# disabling services/ windows feaures
 write-output "beginning to disable services - check readme for critical services"
 
 set-service eventlog -start a -status running
@@ -70,6 +70,8 @@ Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer -NoRestart
 Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart  
 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
 
+
+# enabling/starting services/windows features
 #Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force
 
 # passwords
