@@ -40,6 +40,9 @@ set-service iphlpsvc -start d -status stopped
 Get-Service -Name WinRM | Stop-Service -Force
 Set-Service -Name WinRM -StartupType Disabled -Status Stopped -Confirm $false
 
+Get-Service -Name WSearch | Stop-Service -Force
+Set-Service -Name WSearch -StartupType Disabled -Status Stopped -Confirm $false
+
 Disable-PSRemoting -Force
 Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
 
