@@ -51,7 +51,6 @@ Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
 
 #Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force
 
-
 # passwords
 Get-LocalUser | Set-LocalUser -Password (Read-Host -AsSecureString "local pass: ")
 Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass:")
