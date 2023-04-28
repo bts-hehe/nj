@@ -55,7 +55,8 @@ Get-Service -Name WSearch | Stop-Service -Force
 Set-Service -Name WSearch -StartupType Disabled -Status Stopped -Confirm $false
 
 Disable-PSRemoting -Force
-Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
+Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient -NoRestart  
+Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer -NoRestart  
 
 Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart  
 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
