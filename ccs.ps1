@@ -11,6 +11,17 @@ Disable-ADAccount -Name "Guest"
 
 # need to add section for disabling users not on readme
 
+# audit policy
+auditpol /set /category:"Account Logon" /success:enable /failure:enable
+auditpol /set /category:"Account Management" /success:enable /failure:enable
+auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable
+auditpol /set /category:"DS Access" /success:enable /failure:enable
+auditpol /set /category:"Logon/Logoff" /success:enable /failure:enable
+auditpol /set /category:"Object Access" /success:enable /failure:enable
+auditpol /set /category:"Policy Change" /success:enable /failure:enable
+auditpol /set /category:"Privilege Use" /success:enable /failure:enable
+auditpol /set /category:"System" /success:enable /failure:enable
+
 # Defender
 start-service WinDefend
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
