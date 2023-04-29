@@ -1,17 +1,18 @@
-# start firewall, fix it maybe
+# ---ENABLING FIREWALL---
+Set-Service -Name mpssvc -StartupType Automatic -Status Running -Confirm $false
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
 
-# disable guest/Administrator accounts
+# ---DISABLING GUEST/ADMINISTRATOR ACCOUNTS---
 Disable-LocalUser -Name "Administrator"
 Disable-LocalUser -Name "Guest"
 
 Disable-ADAccount -Name "Administrator"
 Disable-ADAccount -Name "Guest"
 
-# need to add section for disabling users not on readme
+# ---ENABLING/DISABLING USER ACCOUNTS---
 
-# UAC
+# ---UAC---
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableUIADesktopToggle /d 0 /f
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v ConsentPromptBehaviorUser /d 0 /f 
@@ -20,7 +21,7 @@ reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DW
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableLUA /d 1 /f 
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableVirtualization /d 0 /f 
 
-# audit policy
+# ---AUDIT POLICY---
 auditpol /set /category:"Account Logon" /success:enable /failure:enable
 auditpol /set /category:"Account Management" /success:enable /failure:enable
 auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable
@@ -31,8 +32,10 @@ auditpol /set /category:"Policy Change" /success:enable /failure:enable
 auditpol /set /category:"Privilege Use" /success:enable /failure:enable
 auditpol /set /category:"System" /success:enable /failure:enable
 
-# Defender
-start-service WinDefend
+# ---IMPORTING SECPOL.INF---
+
+# ---WINDOWS DEFENDER---
+Set-Service -Name WinDefend -StartupType Automatic -Status Running -Confirm $false
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiVirus" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "ServiceKeepAlive" /t REG_DWORD /d 1 /f
@@ -48,10 +51,21 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBl
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
 
-# misc hardening
+# ---MISC HARDENING---
+
+# unshare C: drive
 net share C:\ /delete
 
-# disabling services/ windows feaures
+# enable Data Execution Prevention
+BCDEDIT /SET {CURRENT} NX ALWAYSON
+
+reg add HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers  /v DisableAutoplay /t REG_DWORD /d 1
+reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 0
+reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v AUOptions /t REG_DWORD /d 3
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Remote Assistance /v fAllowToGetHelp /t REG_DWORD /d 0
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile /v EnableFirewall /t REG_DWORD /d 1
+
+# ---DISABLING FEATURES/SERVICES---
 write-output "beginning to disable services - check readme for critical services"
 
 set-service eventlog -start a -status running
@@ -71,9 +85,9 @@ Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart
 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
 
 
-# enabling/starting services/windows features
+# ---ENABLING FEATURES/SERVICES---
 #Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force
 
-# passwords
+# ---SETTING LOCAL/DOMAIN PASSWORDS---
 Get-LocalUser | Set-LocalUser -Password (Read-Host -AsSecureString "local pass: ")
 Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass:")
