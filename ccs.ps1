@@ -2,6 +2,7 @@
 Set-Service -Name mpssvc -StartupType Automatic -Status Running -Confirm $false
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
+Disable-NetFirewallRule -group "Remote Assistance"
 
 # ---DISABLING GUEST/ADMINISTRATOR ACCOUNTS---
 Disable-LocalUser -Name "Administrator"
