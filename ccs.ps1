@@ -75,7 +75,6 @@ reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parame
 reg add HKLM\SYSTEM\CurrentControlSet\Control\"Terminal Server" /t REG_DWORD /v fDenyTSConnections /d 0 /f
 reg add HKLM\SYSTEM\CurrentControlSet\Control\"Terminal Server"/t REG_DWORD /v fSingleSessionPerUser /d 1 /f
 
-
 # ---DISABLING FEATURES/SERVICES---
 write-output "beginning to disable services - check readme for critical services"
 
