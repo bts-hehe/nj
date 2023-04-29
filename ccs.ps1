@@ -76,6 +76,8 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\"Terminal Server" /t REG_DWORD /v 
 reg add HKLM\SYSTEM\CurrentControlSet\Control\"Terminal Server"/t REG_DWORD /v fSingleSessionPerUser /d 1 /f
 # disable auto admin login
 reg add HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v Autoadminlogin /t REG_SZ /d 0 /f
+# disable ctrl-alt-delete to login
+reg add HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v DisableCAD /t REG_DWORD /d 1 /f
 
 # ---DISABLING FEATURES/SERVICES---
 write-output "beginning to disable services - check readme for critical services"
