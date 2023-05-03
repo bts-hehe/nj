@@ -12,7 +12,18 @@ Disable-ADAccount -Name "Administrator"
 Disable-ADAccount -Name "Guest"
 
 # ---ENABLING/DISABLING USER ACCOUNTS---
+Disable-LocalUser
 
+foreach($line in Get-Content .\admins.txt) {
+    if($line -match $regex){
+        # Work here
+    }
+}
+foreach($line in Get-Content .\users.txt) {
+    if($line -match $regex){
+        # Work here
+    }
+}
 # ---UAC---
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableUIADesktopToggle /d 0 /f
