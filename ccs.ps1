@@ -89,6 +89,9 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\"Terminal Server"/t REG_DWORD /v f
 reg add HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v Autoadminlogin /t REG_SZ /d 0 /f
 # disable ctrl-alt-delete to login
 reg add HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v DisableCAD /t REG_DWORD /d 1 /f
+# disable WDigest
+reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 0
+
 
 # ---DISABLING FEATURES/SERVICES---
 write-output "beginning to disable services - check readme for critical services"
