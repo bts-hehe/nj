@@ -13,11 +13,12 @@ Disable-ADAccount -Name "Guest"
 
 # ---ENABLING/DISABLING USER ACCOUNTS---
 Disable-LocalUser
+Disable-ADAccount
 
-foreach($line in Get-Content .\admins.txt) {
-    if($line -match $regex){
-        # Work here
-    }
+foreach($line in [System.IO.File]::ReadLines("admins.txt"))
+{
+    write-output $line
+    #Enable-LocalUser -Name $line
 }
 foreach($line in Get-Content .\users.txt) {
     if($line -match $regex){
@@ -102,8 +103,11 @@ set-service iphlpsvc -start d -status stopped
 Get-Service -Name WinRM | Stop-Service -Force
 Set-Service -Name WinRM -StartupType Disabled -Status Stopped -Confirm $false
 
-Get-Service -Name WSearch | Stop-Service -Force
-Set-Service -Name WSearch -StartupType Disabled -Status Stopped -Confirm $false
+Set-Service WSearch -StartupType Disabled
+Stop-Service WSearch 
+
+Set-Service iphlpsvc -StartupType Disabled
+Stop-Service iphlpsvc 
 
 Disable-PSRemoting -Force
 Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient -NoRestart  
@@ -114,6 +118,9 @@ Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
 
 
 # ---ENABLING FEATURES/SERVICES---
+Set-Service W32Time -StartupType Automatic
+Start-Service W32Time
+
 #Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force
 
 # ---SETTING LOCAL/DOMAIN PASSWORDS---
