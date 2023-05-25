@@ -15,16 +15,21 @@ Disable-ADAccount -Name "Guest"
 Disable-LocalUser
 Disable-ADAccount
 
+write-output "rmbr to create admins.txt, users.txt"
+
 foreach($line in [System.IO.File]::ReadLines("admins.txt"))
 {
-    write-output $line
-    #Enable-LocalUser -Name $line
+    Enable-LocalUser -Name $line
+    Enable-ADAccount -Name $line
+    Add-LocalGroupMember -Group "Administrators" -Member $line 
+    Add-ADGroupMember - Group "Administrators" - Member $line
 }
-foreach($line in Get-Content .\users.txt) {
-    if($line -match $regex){
-        # Work here
-    }
+foreach($line in [System.IO.File]::ReadLines("users.txt"))
+{
+    Enable-LocalUser -Name $line
+    Enable-ADAccount -Name $line
 }
+
 # ---UAC---
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableUIADesktopToggle /d 0 /f
@@ -46,6 +51,9 @@ auditpol /set /category:"Privilege Use" /success:enable /failure:enable
 auditpol /set /category:"System" /success:enable /failure:enable
 
 # ---IMPORTING SECPOL.INF---
+$dir ='' # DO THIS
+Invoke-WebRequest 'https://raw.githubusercontent.com/prince-of-tennis/delphinium/main/secpol.inf' -OutFile $dir
+secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 
 # ---WINDOWS DEFENDER---
 Set-Service -Name WinDefend -StartupType Automatic -Status Running -Confirm $false
