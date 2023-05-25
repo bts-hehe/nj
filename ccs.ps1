@@ -1,3 +1,5 @@
+write-output "starting firewall script"
+
 # ---ENABLING FIREWALL---
 Set-Service -Name mpssvc -StartupType Automatic -Status Running -Confirm $false
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
@@ -76,7 +78,6 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection 
 
 # unshare C: drive
 net share C:\ /delete
-
 # enable Data Execution Prevention
 BCDEDIT /SET {CURRENT} NX ALWAYSON
 
@@ -101,7 +102,6 @@ reg add HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v DisableCAD
 # disable WDigest
 reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 0
 
-
 # ---DISABLING FEATURES/SERVICES---
 write-output "beginning to disable services - check readme for critical services"
 
@@ -123,7 +123,6 @@ Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer -NoRestart
 
 Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart  
 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
-
 
 # ---ENABLING FEATURES/SERVICES---
 Set-Service W32Time -StartupType Automatic
