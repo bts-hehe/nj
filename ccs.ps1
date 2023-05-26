@@ -53,6 +53,7 @@ auditpol /set /category:"Privilege Use" /success:enable /failure:enable
 auditpol /set /category:"System" /success:enable /failure:enable
 
 # ---IMPORTING SECPOL.INF---
+write-output "importing secpol.inf file, make sure connected to internet"
 $dir ='' # DO THIS
 Invoke-WebRequest 'https://raw.githubusercontent.com/prince-of-tennis/delphinium/main/secpol.inf' -OutFile $dir
 secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
@@ -133,3 +134,5 @@ Start-Service W32Time
 # ---SETTING LOCAL/DOMAIN PASSWORDS---
 Get-LocalUser | Set-LocalUser -Password (Read-Host -AsSecureString "local pass: ")
 Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass:")
+
+write-output "script finished"
