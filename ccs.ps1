@@ -1,9 +1,11 @@
 write-output "STARTING SCRIPT, REMEMBER TO DO FORENSICS FIRST, THIS WILL DELETE UNAUTHORIZED USER DIRECTORIES"
 
 # ---ENABLING FIREWALL---
-Set-Service -Name mpssvc -StartupType Automatic -Status Running -Confirm $false
+Set-Service mpssvc -StartupType Automatic
+Start-Service mpssvc
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
+
 #Disable-NetFirewallRule -group "Remote Assistance"
 
 # ---DISABLING GUEST/ADMINISTRATOR ACCOUNTS---
@@ -21,6 +23,7 @@ Disable-ADAccount
 Get-LocalGroupMember "Administrators" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
 Get-ADGroupMember "Administrators" | ForEach-Object {Remove-ADGroupMember "Administrators" $_ -Confirm:$false}
 
+# disable remote desktop, remote mgmt?
 # what you want to do is find a way to loop through all current users, check if theyre in teh list, and delete if they're not
 
 foreach($line in [System.IO.File]::ReadLines("admins.txt"))
