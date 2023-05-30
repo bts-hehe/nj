@@ -54,7 +54,7 @@ auditpol /set /category:"System" /success:enable /failure:enable
 
 # ---IMPORTING SECPOL.INF---
 write-output "importing secpol.inf file, make sure connected to internet"
-$dir ='' # DO THIS
+$dir ='C:\' # DO THIS
 Invoke-WebRequest 'https://raw.githubusercontent.com/prince-of-tennis/delphinium/main/secpol.inf' -OutFile $dir
 secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 
