@@ -19,8 +19,8 @@ Disable-ADAccount -Name "Guest"
 write-output "RMBR TO CREATE admins.txt, users.txt -> C:\temp\admins.txt"
 
 # disable remote desktop, remote mgmt?
-Get-LocalGroupMember "Administrators" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
-Get-ADGroupMember "Administrators" | ForEach-Object {Remove-ADGroupMember "Administrators" $_ -Confirm:$false}
+Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
+Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
 
 $users = Get-ChildItem "C:\Users"
 foreach($user in $users) {
@@ -36,11 +36,11 @@ foreach($user in $users) {
 foreach($user in $users) {
     $SEL = Select-String -Path C:\temp\admins.txt -Pattern $user
     if ($null -ne $SEL){ # if user is auth admin 
-        Add-LocalGroupMember -Group "Administrators" -Member $line 
-        Add-ADGroupMember - Group "Administrators" - Member $line
+        Add-LocalGroupMember -Group "Administrators" -Member $user 
+        Add-ADGroupMember - Group "Administrators" - Member $user
     }else{
-        Remove-LocalGroupMember -Group "Administrators" -Member $line
-        Remove-ADGroupMember -Group "Administrators" -Member $line
+        Remove-LocalGroupMember -Group "Administrators" -Member $user
+        Remove-ADGroupMember -Group "Administrators" -Member $user
     }
 }
 
@@ -67,7 +67,7 @@ auditpol /set /category:"System" /success:enable /failure:enable
 # ---IMPORTING SECPOL.INF---
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13
 write-output "importing secpol.inf file, make sure connected to internet"
-$dir ='C:\temp\secpol.inf' # DO THIS
+$dir ='C:\temp\secpol.inf'
 Invoke-WebRequest 'https://raw.githubusercontent.com/prince-of-tennis/delphinium/main/secpol.inf' -OutFile $dir
 secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 
@@ -125,14 +125,12 @@ reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NTDS\Parameters /v 
 # ---DISABLING FEATURES/SERVICES---
 write-output "beginning to disable services - check readme for critical services"
 
-set-service snmptrap -start d -status stopped
-set-service iphlpsvc -start d -status stopped
-Get-Service -Name WinRM | Stop-Service -Force
-Set-Service -Name WinRM -StartupType Disabled -Status Stopped -Confirm $false
-
+Set-Service snmptrap -StartupType Disabled
+Stop-Service snmptrap 
+Set-Service WinRM -StartupType Disabled
+Stop-Service WinRM 
 Set-Service WSearch -StartupType Disabled
-Stop-Service WSearch 
-
+Stop-Service WSearch
 Set-Service iphlpsvc -StartupType Disabled
 Stop-Service iphlpsvc 
 
