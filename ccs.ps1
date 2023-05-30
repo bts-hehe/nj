@@ -36,10 +36,10 @@ foreach($user in $users) {
 foreach($user in $users) {
     $SEL = Select-String -Path C:\temp\admins.txt -Pattern $user
     if ($null -ne $SEL){ # if user is auth admin 
-        Add-LocalGroupMember -Group "Administrators" -Member -get-localuser $user 
+        Add-LocalGroupMember -Group "Administrators" -Name $user 
         #Add-ADGroupMember - Group "Administrators" - Member $user
     }else{
-        Remove-LocalGroupMember -Group "Administrators" -Member $user
+        Remove-LocalGroupMember -Group "Administrators" -Name $user
         #Remove-ADGroupMember -Group "Administrators" -Member $user
     }
 }
