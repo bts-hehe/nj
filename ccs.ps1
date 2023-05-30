@@ -19,8 +19,8 @@ Disable-LocalUser -Name "Guest"
 write-output "RMBR TO CREATE admins.txt, users.txt -> C:\temp\admins.txt"
 
 # disable remote desktop, remote mgmt?
-Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
-Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
+Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
+Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Remote Management Users" $_ -Confirm:$false}
 
 $users = Get-ChildItem "C:\Users"
 foreach($user in $users) {
@@ -65,14 +65,13 @@ auditpol /set /category:"Privilege Use" /success:enable /failure:enable
 auditpol /set /category:"System" /success:enable /failure:enable
 
 # ---IMPORTING SECPOL.INF---
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 write-output "importing secpol.inf file, make sure connected to internet"
 $dir ='C:\temp\secpol.inf'
 Invoke-WebRequest 'https://raw.githubusercontent.com/prince-of-tennis/delphinium/main/secpol.inf' -OutFile $dir
 secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 
 # ---WINDOWS DEFENDER---
-write-output "--------------------windefend"
 Set-Service WinDefend -StartupType Automatic
 Start-Service WinDefend
 
@@ -90,7 +89,7 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SubmitSam
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBlockAtFirstSeen" /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
-write-output "finished windefend"
+
 # ---MISC HARDENING---
 
 # unshare C: drive
