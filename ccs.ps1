@@ -95,7 +95,7 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection 
 # unshare C: drive
 net share C:\ /delete
 # enable Data Execution Prevention
-bcdedit.exe /set {current} nx AlwaysOn # look into this
+bcdedit /set {current} nx AlwaysOn # look into this
 
 # enable firewall
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile /v EnableFirewall /t REG_DWORD /d 1 /f
