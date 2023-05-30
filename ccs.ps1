@@ -4,7 +4,7 @@ write-output "starting firewall script"
 Set-Service -Name mpssvc -StartupType Automatic -Status Running -Confirm $false
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
-Disable-NetFirewallRule -group "Remote Assistance"
+#Disable-NetFirewallRule -group "Remote Assistance"
 
 # ---DISABLING GUEST/ADMINISTRATOR ACCOUNTS---
 Disable-LocalUser -Name "Administrator"
@@ -13,11 +13,13 @@ Disable-LocalUser -Name "Guest"
 Disable-ADAccount -Name "Administrator"
 Disable-ADAccount -Name "Guest"
 
-# ---ENABLING/DISABLING USER ACCOUNTS---
+# ---ENABLING/DISABLING USER ACCOUNTS, REMOVING EVERYONE FROM ADMINS---
+write-output "rmbr to create admins.txt, users.txt"
+
 Disable-LocalUser
 Disable-ADAccount
-
-write-output "rmbr to create admins.txt, users.txt"
+Get-LocalGroupMember "Administrators" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
+Get-ADGroupMember "Administrators" | ForEach-Object {Remove-ADGroupMember "Administrators" $_ -Confirm:$false}
 
 foreach($line in [System.IO.File]::ReadLines("admins.txt"))
 {
@@ -80,22 +82,22 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection 
 # unshare C: drive
 net share C:\ /delete
 # enable Data Execution Prevention
-BCDEDIT /SET {CURRENT} NX ALWAYSON
+bcdedit.exe /set {current} nx AlwaysOn
 
 # enable firewall
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile /v EnableFirewall /t REG_DWORD /d 1 /f
 # enable smartscreen, this is a problem if downloading software
 reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System /t REG_DWORD /v EnableSmartScreen /d 1 /f
 # disable autoplay
-reg add HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers  /v DisableAutoplay /t REG_DWORD /d 1
+reg add HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers  /v DisableAutoplay /t REG_DWORD /d 1 /f
 # enable autoupdate
 reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 0 /f
 reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v AUOptions /t REG_DWORD /d 3 /f
 # user cannot request assistance from a friend or a support professional.
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Remote Assistance /v fAllowToGetHelp /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
 #disable remote desktop
-reg add HKLM\SYSTEM\CurrentControlSet\Control\"Terminal Server" /t REG_DWORD /v fDenyTSConnections /d 0 /f
-reg add HKLM\SYSTEM\CurrentControlSet\Control\"Terminal Server"/t REG_DWORD /v fSingleSessionPerUser /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /t REG_DWORD /v fDenyTSConnections /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server"/t REG_DWORD /v fSingleSessionPerUser /d 1 /f
 # disable auto admin login
 reg add HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v Autoadminlogin /t REG_SZ /d 0 /f
 # disable ctrl-alt-delete to login
