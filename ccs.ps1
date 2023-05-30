@@ -12,8 +12,8 @@ Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
 Disable-LocalUser -Name "Administrator"
 Disable-LocalUser -Name "Guest"
 
-Disable-ADAccount -Name "Administrator"
-Disable-ADAccount -Name "Guest"
+#Disable-ADAccount -Name "Administrator"
+#Disable-ADAccount -Name "Guest"
 
 # ---ENABLING/DISABLING USER ACCOUNTS, REMOVING EVERYONE FROM ADMINS---
 write-output "RMBR TO CREATE admins.txt, users.txt -> C:\temp\admins.txt"
@@ -27,20 +27,20 @@ foreach($user in $users) {
     $SEL = Select-String -Path C:\temp\users.txt -Pattern $user
     if ($null -ne $SEL){ # if user is auth 
         Enable-LocalUser $user
-        Enable-ADAccount $user
+        #Enable-ADAccount $user
     }else{
         Disable-LocalUser $user
-        Disable-ADAccount $user
+        #Disable-ADAccount $user
     }
 }
 foreach($user in $users) {
     $SEL = Select-String -Path C:\temp\admins.txt -Pattern $user
     if ($null -ne $SEL){ # if user is auth admin 
-        Add-LocalGroupMember -Group "Administrators" -Member $user 
-        Add-ADGroupMember - Group "Administrators" - Member $user
+        Add-LocalGroupMember -Group "Administrators" -Member -get-localuser $user 
+        #Add-ADGroupMember - Group "Administrators" - Member $user
     }else{
         Remove-LocalGroupMember -Group "Administrators" -Member $user
-        Remove-ADGroupMember -Group "Administrators" -Member $user
+        #Remove-ADGroupMember -Group "Administrators" -Member $user
     }
 }
 
@@ -72,6 +72,7 @@ Invoke-WebRequest 'https://raw.githubusercontent.com/prince-of-tennis/delphinium
 secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 
 # ---WINDOWS DEFENDER---
+write-output "--------------------windefend"
 Set-Service WinDefend -StartupType Automatic
 Start-Service WinDefend
 
@@ -89,7 +90,7 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SubmitSam
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBlockAtFirstSeen" /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
-
+write-output "finished windefend"
 # ---MISC HARDENING---
 
 # unshare C: drive
