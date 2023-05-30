@@ -16,27 +16,32 @@ Disable-ADAccount -Name "Administrator"
 Disable-ADAccount -Name "Guest"
 
 # ---ENABLING/DISABLING USER ACCOUNTS, REMOVING EVERYONE FROM ADMINS---
-write-output "rmbr to create admins.txt, users.txt"
+write-output "RMBR TO CREATE admins.txt, users.txt -> C:\temp\admins.txt"
 
-Disable-LocalUser
-Disable-ADAccount
+# disable remote desktop, remote mgmt?
 Get-LocalGroupMember "Administrators" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
 Get-ADGroupMember "Administrators" | ForEach-Object {Remove-ADGroupMember "Administrators" $_ -Confirm:$false}
 
-# disable remote desktop, remote mgmt?
-# what you want to do is find a way to loop through all current users, check if theyre in teh list, and delete if they're not
-
-foreach($line in [System.IO.File]::ReadLines("admins.txt"))
-{
-    Enable-LocalUser -Name $line
-    Enable-ADAccount -Name $line
-    Add-LocalGroupMember -Group "Administrators" -Member $line 
-    Add-ADGroupMember - Group "Administrators" - Member $line
+$users = Get-ChildItem "C:\Users"
+foreach($user in $users) {
+    $SEL = Select-String -Path C:\temp\users.txt -Pattern $user
+    if ($null -ne $SEL){ # if user is auth 
+        Enable-LocalUser $user
+        Enable-ADAccount $user
+    }else{
+        Disable-LocalUser $user
+        Disable-ADAccount $user
+    }
 }
-foreach($line in [System.IO.File]::ReadLines("users.txt"))
-{
-    Enable-LocalUser -Name $line
-    Enable-ADAccount -Name $line
+foreach($user in $users) {
+    $SEL = Select-String -Path C:\temp\admins.txt -Pattern $user
+    if ($null -ne $SEL){ # if user is auth admin 
+        Add-LocalGroupMember -Group "Administrators" -Member $line 
+        Add-ADGroupMember - Group "Administrators" - Member $line
+    }else{
+        Remove-LocalGroupMember -Group "Administrators" -Member $line
+        Remove-ADGroupMember -Group "Administrators" -Member $line
+    }
 }
 
 # ---UAC---
@@ -60,13 +65,16 @@ auditpol /set /category:"Privilege Use" /success:enable /failure:enable
 auditpol /set /category:"System" /success:enable /failure:enable
 
 # ---IMPORTING SECPOL.INF---
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13
 write-output "importing secpol.inf file, make sure connected to internet"
-$dir ='C:\' # DO THIS
+$dir ='C:\temp\secpol.inf' # DO THIS
 Invoke-WebRequest 'https://raw.githubusercontent.com/prince-of-tennis/delphinium/main/secpol.inf' -OutFile $dir
 secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 
 # ---WINDOWS DEFENDER---
-Set-Service -Name WinDefend -StartupType Automatic -Status Running -Confirm $false
+Set-Service WinDefend -StartupType Automatic
+Start-Service WinDefend
+
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiVirus" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "ServiceKeepAlive" /t REG_DWORD /d 1 /f
@@ -87,7 +95,7 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection 
 # unshare C: drive
 net share C:\ /delete
 # enable Data Execution Prevention
-bcdedit.exe /set {current} nx AlwaysOn
+bcdedit.exe /set {current} nx AlwaysOn # look into this
 
 # enable firewall
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile /v EnableFirewall /t REG_DWORD /d 1 /f
@@ -104,20 +112,19 @@ reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Remote Assistance" 
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /t REG_DWORD /v fDenyTSConnections /d 0 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server"/t REG_DWORD /v fSingleSessionPerUser /d 1 /f
 # disable auto admin login
-reg add HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v Autoadminlogin /t REG_SZ /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Autoadminlogin /t REG_SZ /d 0 /f
 # disable ctrl-alt-delete to login
-reg add HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon /v DisableCAD /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DisableCAD /t REG_DWORD /d 1 /f
 # disable WDigest
 reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 0 /f
 # enable RDP NLA (network level auth)
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp /v UserAuthentication /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v UserAuthentication /t REG_DWORD /d 1 /f
 # make LDAP authentication over SSL/TLS more secure
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NTDS\Parameters /v LdapEnforceChannelBinding /t REG_DWORD /d 1 /f
 
 # ---DISABLING FEATURES/SERVICES---
 write-output "beginning to disable services - check readme for critical services"
 
-set-service eventlog -start a -status running
 set-service snmptrap -start d -status stopped
 set-service iphlpsvc -start d -status stopped
 Get-Service -Name WinRM | Stop-Service -Force
