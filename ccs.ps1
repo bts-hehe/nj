@@ -21,6 +21,8 @@ Disable-ADAccount
 Get-LocalGroupMember "Administrators" | ForEach-Object {Remove-LocalGroupMember "Administrators" $_ -Confirm:$false}
 Get-ADGroupMember "Administrators" | ForEach-Object {Remove-ADGroupMember "Administrators" $_ -Confirm:$false}
 
+# what you want to do is find a way to loop through all current users, check if theyre in teh list, and delete if they're not
+
 foreach($line in [System.IO.File]::ReadLines("admins.txt"))
 {
     Enable-LocalUser -Name $line
