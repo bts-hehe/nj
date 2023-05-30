@@ -1,4 +1,4 @@
-write-output "starting firewall script"
+write-output "STARTING SCRIPT, REMEMBER TO DO FORENSICS FIRST, THIS WILL DELETE UNAUTHORIZED USER DIRECTORIES"
 
 # ---ENABLING FIREWALL---
 Set-Service -Name mpssvc -StartupType Automatic -Status Running -Confirm $false
