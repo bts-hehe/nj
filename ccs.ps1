@@ -1,4 +1,4 @@
-write-output "STARTING SCRIPT, REMEMBER TO DO FORENSICS FIRST, THIS WILL DELETE UNAUTHORIZED USER DIRECTORIES"
+write-output "|| starting script ||"
 
 # ---ENABLING FIREWALL---
 Set-Service mpssvc -StartupType Automatic
@@ -151,4 +151,4 @@ Start-Service W32Time
 Get-LocalUser | Set-LocalUser -Password (Read-Host -AsSecureString "local pass: ")
 Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass:")
 
-write-output "script finished"
+write-output "|| finishing script ||"
