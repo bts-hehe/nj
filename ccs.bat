@@ -10,6 +10,11 @@ for /F "tokens=*" %%user in (C:\temp\users.txt) do (
   echo %%user
 )
 
+:: ---MISC HARDENING
+net share C:\ /delete
+
+
+
 :: ---UAC---
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableUIADesktopToggle /d 0 /f
