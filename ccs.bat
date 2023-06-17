@@ -10,6 +10,11 @@ for /F "tokens=*" %%user in (C:\temp\users.txt) do (
   echo %%user
 )
 
+FOR /F "TOKENS=*" %%F IN (%USERPROFILE%\Desktop\users.txt) DO net user %%~F $Tr0yT3chSupp0rt$ 
+FOR /F "TOKENS=*" %%F IN (%USERPROFILE%\Desktop\admins.txt) DO net user %%~F InSecT1234!@#$
+
+
+
 :: ---MISC HARDENING
 net share C:\ /delete
 
