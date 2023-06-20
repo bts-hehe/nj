@@ -3,6 +3,9 @@ echo "|| starting script ||"
 netsh advfirewall set allprofiles state on
 
 :: users
+net user administrator /active:no
+net user guest /active:no
+
 set password="CyberPatriot123!@#"
 for /F "tokens=*" %%user in (C:\temp\users.txt) do (
   :: net user /domain %%user %password%
@@ -17,8 +20,6 @@ FOR /F "TOKENS=*" %%F IN (%USERPROFILE%\Desktop\admins.txt) DO net user %%~F InS
 
 :: ---MISC HARDENING
 net share C:\ /delete
-
-
 
 :: ---UAC---
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
@@ -55,6 +56,7 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SubmitSam
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBlockAtFirstSeen" /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
+
 
 
 
