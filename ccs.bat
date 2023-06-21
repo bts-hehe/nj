@@ -1,3 +1,4 @@
+@echo off
 echo "|| starting script ||"
 
 netsh advfirewall set allprofiles state on
@@ -7,19 +8,19 @@ net user administrator /active:no
 net user guest /active:no
 
 set password="CyberPatriot123!@#"
-for /F "tokens=*" %%user in (C:\temp\users.txt) do (
-  :: net user /domain %%user %password%
-  :: net user /domain %%user /ACTIVE NO
-  echo %%user
+
+FOR /F "TOKENS=*" %%F IN (%USERPROFILE%\Desktop\users.txt) DO (
+  net user %%~F $password
+  net user /domain %%~F /ACTIVE YES
+) 
+FOR /F "TOKENS=*" %%F IN (%USERPROFILE%\Desktop\admins.txt) DO (
+  net user %%~F $password
+  net user /domain %%~F /ACTIVE YES
 )
-
-FOR /F "TOKENS=*" %%F IN (%USERPROFILE%\Desktop\users.txt) DO net user %%~F $Tr0yT3chSupp0rt$ 
-FOR /F "TOKENS=*" %%F IN (%USERPROFILE%\Desktop\admins.txt) DO net user %%~F InSecT1234!@#$
-
-
 
 :: ---MISC HARDENING
 net share C:\ /delete
+bcdedit /set {current} nx AlwaysOn
 
 :: ---UAC---
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
@@ -57,6 +58,8 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBl
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
 
+:: ---APP SECURITY---
+HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
 
 
 

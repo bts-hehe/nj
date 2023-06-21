@@ -122,6 +122,8 @@ reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\Win
 # make LDAP authentication over SSL/TLS more secure
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NTDS\Parameters /v LdapEnforceChannelBinding /t REG_DWORD /d 1 /f
 
+
+
 # ---DISABLING FEATURES/SERVICES---
 write-output "beginning to disable services - check readme for critical services"
 
