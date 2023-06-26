@@ -1,10 +1,24 @@
 # win
-- CCS: 
-  1. Download as zip or clone to C: as a folder that should be named ```win-main```. Run whatever is necessary.
-  2. remember to delete folder once you are done
-- RvB: 
-  1. from USB, only copy ```rvb.bat```. You should type ```rvb_pass``` by hand because its short.
-  2. remember to delete scripts if you have time. Just delete ```rvb.bat```.
+This is a script meant to harden your windows server or workstation.
 
-**NOTES:**
-You really only need to edit `users.txt` and `admins.txt` during competition optimally.
+## Running the script
+### CCS-style competition 
+  1. Download as zip or clone to C: as a folder that should be named ```win-main```.
+  2. Edit the `users.txt` and `admins.txt` files.
+  2. Run the following in a Powershell terminal with administrative privileges:
+  ```powershell
+  Set-ExecutionPolicy Unrestricted -force
+  ```
+  3. Run the `ccs.ps1` file.
+  4. remember to delete folder once you are done
+
+### RvB competitions
+**TODO**
+```powershell
+Get-LocalUser | Set-LocalUser -Password (Read-Host -AsSecureString "Local Pass: ")
+Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass: ")
+```
+## Overview of `CCS.ps1`
+
+## Version Notes
+- doesn't currently work for Active Directory (users)
