@@ -19,16 +19,15 @@ $Password = "CyberPatriot123!@#"
 
 Get-LocalUser | Set-LocalUser -Password $Password 
 foreach($User in $Users) {
-    $SEL = Select-String -Path C:\temp\users.txt -Pattern $User
+    $SEL = Select-String -Path "users.txt" -Pattern $User
     if ($null -ne $SEL){ # if user is auth 
         Enable-LocalUser $User
     }else{
         Disable-LocalUser $User
     }
 }
-
 foreach($user in $users) {
-    $SEL = Select-String -Path C:\temp\admins.txt -Pattern $user
+    $SEL = Select-String -Path "admins.txt" -Pattern $user
     if ($null -ne $SEL){ # if user is auth admin 
         Add-LocalGroupMember -Group "Administrators" -Member $user 
     }else{
@@ -57,16 +56,10 @@ auditpol /set /category:"Privilege Use" /success:enable /failure:enable
 auditpol /set /category:"System" /success:enable /failure:enable
 
 # ---IMPORTING SECPOL.INF---
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-write-output "importing secpol.inf file, make sure connected to internet"
-$dir ='C:\temp\secpol.inf'
-Invoke-WebRequest 'https://raw.githubusercontent.com/prince-of-tennis/delphinium/main/secpol.inf' -OutFile $dir
+$dir ='secpol.inf'
 secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 
 # ---WINDOWS DEFENDER---
-Set-Service WinDefend -StartupType Automatic
-Start-Service WinDefend
-
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiVirus" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "ServiceKeepAlive" /t REG_DWORD /d 1 /f
@@ -96,21 +89,14 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /t REG_DWORD /v 
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server"/t REG_DWORD /v fSingleSessionPerUser /d 1 /f # disable auto admin login
 reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Autoadminlogin /t REG_SZ /d 0 /f # disable auto admin login
 reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DisableCAD /t REG_DWORD /d 1 /f # disable ctrl-alt-delete to login
-reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 0 /f # disable WDigest
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /t REG_DWORD /d 0 /f # disable WDigest
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v UserAuthentication /t REG_DWORD /d 1 /f # enable RDP NLA (network level auth)
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NTDS\Parameters /v LdapEnforceChannelBinding /t REG_DWORD /d 1 /f # make LDAP authentication over SSL/TLS more secure
 
 # ---DISABLING FEATURES/SERVICES---
-write-output ""
 ./services.bat
-
-
 Disable-PSRemoting -Force
-Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient -NoRestart  
-Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer -NoRestart  
 
-Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart  
-Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force 
-
+# TelnetClient, TelnetServer, SMB1Protocol
 
 write-output "|| finishing script ||"
