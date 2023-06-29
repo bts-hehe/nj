@@ -1,4 +1,4 @@
-write-output "|| starting script ||"
+write-output "|| ccs.ps1 started ||"
 
 # ---ENABLING FIREWALL---
 Set-Service mpssvc -StartupType Automatic
@@ -35,6 +35,16 @@ foreach($User in $Users) {
     }
 }
 
+# ---IMPORTING GPO---
+# smth like downloading compliance toolkit, unzipping, navigating to directory
+# LGPO.exe /g C:\Users\Pessi\Desktop\GP\export
+
+# gpdupdate /force
+
+# ---IMPORTING SECPOL.INF---
+$dir ='secpol.inf'
+secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
+
 # ---UAC---
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
 reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableUIADesktopToggle /d 0 /f
@@ -55,10 +65,6 @@ auditpol /set /category:"Policy Change" /success:enable /failure:enable
 auditpol /set /category:"Privilege Use" /success:enable /failure:enable
 auditpol /set /category:"System" /success:enable /failure:enable
 
-# ---IMPORTING SECPOL.INF---
-$dir ='secpol.inf'
-secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
-
 # ---WINDOWS DEFENDER---
 Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
 
@@ -77,7 +83,7 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBl
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
 
-# ---MISC HARDENING---
+# ---MORE HARDENING---
 net share C:\ /delete
 bcdedit /set {current} nx AlwaysOn
 
@@ -116,4 +122,4 @@ Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
 Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer
 Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 
-write-output "|| finishing script ||"
+write-output "|| ccs.ps1 finished ||"
