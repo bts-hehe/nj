@@ -26,12 +26,12 @@ foreach($User in $Users) {
         Disable-LocalUser $User
     }
 }
-foreach($user in $users) {
-    $SEL = Select-String -Path "admins.txt" -Pattern $user
+foreach($User in $Users) {
+    $SEL = Select-String -Path "admins.txt" -Pattern $User
     if ($null -ne $SEL){ # if user is auth admin 
-        Add-LocalGroupMember -Group "Administrators" -Member $user 
+        Add-LocalGroupMember -Group "Administrators" -Member $User 
     }else{
-        Remove-LocalGroupMember -Group "Administrators" -Member $user
+        Remove-LocalGroupMember -Group "Administrators" -Member $User
     }
 }
 
@@ -94,11 +94,26 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DisableC
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /t REG_DWORD /d 0 /f # disable WDigest
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v UserAuthentication /t REG_DWORD /d 1 /f # enable RDP NLA (network level auth)
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NTDS\Parameters /v LdapEnforceChannelBinding /t REG_DWORD /d 1 /f # make LDAP authentication over SSL/TLS more secure
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DNS\Parameters" /v TcpReceivePacketSize /t REG_DWORD /d 0xFF00 # https://support.microsoft.com/en-au/topic/kb4569509-guidance-for-dns-server-vulnerability-cve-2020-1350-6bdf3ae7-1961-2d25-7244-cce61b056569
+
+# HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
 
 # ---DISABLING FEATURES/SERVICES---
-./services.bat
+foreach($line in [System.IO.File]::ReadLines("enabled_services.txt"))
+{
+    Set-Service $line -StartupType Automatic
+    Start-Service $line
+}
+foreach($line in [System.IO.File]::ReadLines("disabled_services.txt"))
+{
+    Set-Service $line -StartupType Disabled
+    Stop-Service $line
+}
+
 Disable-PSRemoting -Force
 
-# TelnetClient, TelnetServer, SMB1Protocol
+Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
+Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer
+Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 
 write-output "|| finishing script ||"

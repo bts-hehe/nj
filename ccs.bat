@@ -59,7 +59,6 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetRep
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
 
 :: ---APP SECURITY---
-HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
 
 :: ---SERVICES---
 ./services.bat
