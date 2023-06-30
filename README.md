@@ -23,3 +23,4 @@ Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass: ")
 
 ## Version Notes
 - doesn't currently work for Active Directory (users)
+- test
