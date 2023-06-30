@@ -36,10 +36,9 @@ foreach($User in $Users) {
 }
 
 # ---IMPORTING GPO---
-# smth like downloading compliance toolkit, unzipping, navigating to directory
-# LGPO.exe /g C:\Users\Pessi\Desktop\GP\export
-
-# gpdupdate /force
+$PathToGPO = "backup.pol"
+LGPO.exe /g $PathToGPO
+gpdupdate /force
 
 # ---IMPORTING SECPOL.INF---
 $dir ='secpol.inf'
