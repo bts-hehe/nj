@@ -23,4 +23,5 @@ Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass: ")
 
 ## Version Notes
 - doesn't currently work for Active Directory (users)
+- missing GPO, and maybe working secpol.inf - in theory you really only need one, preferably GPO
 - test
