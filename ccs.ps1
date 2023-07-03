@@ -1,3 +1,4 @@
+Start-Transcript -Append log.txt
 write-output "|| ccs.ps1 started ||"
 
 # ---ENABLING FIREWALL---
@@ -36,12 +37,12 @@ foreach($User in $Users) {
 }
 
 # ---IMPORTING GPO---
-$PathToGPO = "{EE1CF134-A163-4488-8832-D7CEAC60FB43}"
+$PathToGPO = ".\{EE1CF134-A163-4488-8832-D7CEAC60FB43}"
 LGPO.exe /g $PathToGPO
 gpdupdate /force
 
 # ---IMPORTING SECPOL.INF---
-$dir ='secpol.inf'
+$dir ='.\secpol.inf'
 secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 
 # ---UAC---
@@ -122,3 +123,5 @@ Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer
 Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 
 write-output "|| ccs.ps1 finished ||"
+Stop-Transcript
+Invoke-Item ".\log.txt"

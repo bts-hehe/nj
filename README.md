@@ -2,6 +2,8 @@
 This is a script meant to harden your windows server or workstation.
 
 ## Running the script
+Note that the output of the script is logged to `log.txt`, which is opened automatically upon completion of the script.
+
 ### CCS-style competition 
   1. Download as zip or clone to C: as a folder. It'll be named ```win-main```.
   2. Edit the `users.txt` and `admins.txt` files. If there's some services to configure, look into the `enabled_services.txt` or `disabled_services.txt` files.
