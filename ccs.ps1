@@ -1,87 +1,126 @@
 Start-Transcript -Append log.txt
-write-output "|| ccs.ps1 started ||"
+Write-Output "|| ccs.ps1 started ||"
 
-# ---ENABLING FIREWALL---
-Set-Service mpssvc -StartupType Automatic
-Start-Service mpssvc
-Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
-Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
+# main
+Enable-Firewall
+Enable-Windows-Defender
+Set-Users -Password "CyberPatriot123!@#"
+Import-GPO
+#Import-Secpol
+Set-Audit-Policy
+Set-UAC
+Disable-Services
+Disable-Features
+#Set-Browser-Settings
 
-# ---DISABLING GUEST/ADMINISTRATOR ACCOUNTS---
-Disable-LocalUser -Name "Administrator"
-Disable-LocalUser -Name "Guest"
+# main ends
 
-# ---USERS---
-Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
-Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Remote Management Users" $_ -Confirm:$false}
+Write-Output "|| ccs.ps1 finished ||"
+Stop-Transcript
+Invoke-Item ".\log.txt"
 
-$Users = Get-ChildItem "C:\Users"
-$Password = "CyberPatriot123!@#"
+# functions
+function Enable-Firewall(){
+    Set-Service mpssvc -StartupType Automatic
+    Start-Service mpssvc
+    Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+    Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
+}
+function Set-Users([string]$Password){
+    Disable-LocalUser -Name "Administrator"
+    Disable-LocalUser -Name "Guest"
 
-Get-LocalUser | Set-LocalUser -Password $Password 
-foreach($User in $Users) {
-    $SEL = Select-String -Path "users.txt" -Pattern $User
-    if ($null -ne $SEL){ # if user is auth 
-        Enable-LocalUser $User
-    }else{
-        Disable-LocalUser $User
+    Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
+    Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Remote Management Users" $_ -Confirm:$false}
+    
+    $Users = Get-ChildItem "C:\Users"
+    Get-LocalUser | Set-LocalUser -Password $Password 
+    foreach($User in $Users) {
+        $SEL = Select-String -Path "users.txt" -Pattern $User
+        if ($null -ne $SEL){ # if user is auth 
+            Enable-LocalUser $User
+        }else{
+            Disable-LocalUser $User
+        }
+    }
+    foreach($User in $Users) {
+        $SEL = Select-String -Path "admins.txt" -Pattern $User
+        if ($null -ne $SEL){ # if user is auth admin 
+            Add-LocalGroupMember -Group "Administrators" -Member $User 
+        }else{
+            Remove-LocalGroupMember -Group "Administrators" -Member $User
+        }
+    }       
+}
+function Import-GPO(){
+    Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
+        $gpopath = ".\GPOs\$gpoitem"
+        LGPO.exe /g $gpopath > $null 2>&1
+    }
+    gpdupdate /force
+}
+function Import-Secpol(){
+    $dir ='.\secpol.inf'
+    secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
+}
+function Disable-Services(){
+    foreach($line in [System.IO.File]::ReadLines("enabled_services.txt"))
+    {
+        Set-Service $line -StartupType Automatic
+        Start-Service $line
+    }
+    foreach($line in [System.IO.File]::ReadLines("disabled_services.txt"))
+    {
+        Set-Service $line -StartupType Disabled
+        Stop-Service $line
     }
 }
-foreach($User in $Users) {
-    $SEL = Select-String -Path "admins.txt" -Pattern $User
-    if ($null -ne $SEL){ # if user is auth admin 
-        Add-LocalGroupMember -Group "Administrators" -Member $User 
-    }else{
-        Remove-LocalGroupMember -Group "Administrators" -Member $User
-    }
+function Disable-Features(){
+    Disable-PSRemoting -Force
+    Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
+    Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer
+    Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 }
-
-# ---IMPORTING GPO---
-$PathToGPO = ".\{EE1CF134-A163-4488-8832-D7CEAC60FB43}"
-LGPO.exe /g $PathToGPO
-gpdupdate /force
-
-# ---IMPORTING SECPOL.INF---
-$dir ='.\secpol.inf'
-secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
-
-# ---UAC---
-reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
-reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableUIADesktopToggle /d 0 /f
-reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v ConsentPromptBehaviorUser /d 0 /f 
-reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v ValidateAdminCodeSignatures /d 1 /f 
-reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableSecureUIAPaths /d 1 /f 
-reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableLUA /d 1 /f 
-reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableVirtualization /d 0 /f 
-
-# ---AUDIT POLICY---
-auditpol /set /category:"Account Logon" /success:enable /failure:enable
-auditpol /set /category:"Account Management" /success:enable /failure:enable
-auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable
-auditpol /set /category:"DS Access" /success:enable /failure:enable
-auditpol /set /category:"Logon/Logoff" /success:enable /failure:enable
-auditpol /set /category:"Object Access" /success:enable /failure:enable
-auditpol /set /category:"Policy Change" /success:enable /failure:enable
-auditpol /set /category:"Privilege Use" /success:enable /failure:enable
-auditpol /set /category:"System" /success:enable /failure:enable
-
-# ---WINDOWS DEFENDER---
-Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
-
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiVirus" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "ServiceKeepAlive" /t REG_DWORD /d 1 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v "DisableHeuristics" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v "ScanWithAntiVirus" /t REG_DWORD /d 3 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v "DisableRealtimeMonitoring" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v "CheckForSignaturesBeforeRunningScan" /t REG_DWORD /d 1 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v "DisableBehaviorMonitoring" /t REG_DWORD /d 1 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Reporting" /v "DisableGenericRePorts" /t REG_DWORD /d 1 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "LocalSettingOverrideSpynetReporting" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SubmitSamplesConsent" /t REG_DWORD /d 2 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBlockAtFirstSeen" /t REG_DWORD /d 1 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
+function Set-Browser-Settings(){
+    # should eventually include chrome, edge, internet explorer, firefox and some form of parameter to toggle each of these
+}
+function Set-UAC(){
+    reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
+    reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableUIADesktopToggle /d 0 /f
+    reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v ConsentPromptBehaviorUser /d 0 /f 
+    reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v ValidateAdminCodeSignatures /d 1 /f 
+    reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableSecureUIAPaths /d 1 /f 
+    reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableLUA /d 1 /f 
+    reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableVirtualization /d 0 /f 
+}
+function Set-Audit-Policy(){
+    auditpol /set /category:"Account Logon" /success:enable /failure:enable
+    auditpol /set /category:"Account Management" /success:enable /failure:enable
+    auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable
+    auditpol /set /category:"DS Access" /success:enable /failure:enable
+    auditpol /set /category:"Logon/Logoff" /success:enable /failure:enable
+    auditpol /set /category:"Object Access" /success:enable /failure:enable
+    auditpol /set /category:"Policy Change" /success:enable /failure:enable
+    auditpol /set /category:"Privilege Use" /success:enable /failure:enable
+    auditpol /set /category:"System" /success:enable /failure:enable
+}
+function Enable-Windows-Defender(){
+    Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiVirus" /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "ServiceKeepAlive" /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v "DisableHeuristics" /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v "ScanWithAntiVirus" /t REG_DWORD /d 3 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v "DisableRealtimeMonitoring" /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v "CheckForSignaturesBeforeRunningScan" /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v "DisableBehaviorMonitoring" /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Reporting" /v "DisableGenericRePorts" /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "LocalSettingOverrideSpynetReporting" /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SubmitSamplesConsent" /t REG_DWORD /d 2 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBlockAtFirstSeen" /t REG_DWORD /d 1 /f
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
+    reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
+}
 
 # ---MORE HARDENING---
 net share C:\ /delete
@@ -103,25 +142,3 @@ reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NTDS\Parameters" /
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DNS\Parameters" /v TcpReceivePacketSize /t REG_DWORD /d 0xFF00 # https://support.microsoft.com/en-au/topic/kb4569509-guidance-for-dns-server-vulnerability-cve-2020-1350-6bdf3ae7-1961-2d25-7244-cce61b056569
 
 # HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
-
-# ---DISABLING FEATURES/SERVICES---
-foreach($line in [System.IO.File]::ReadLines("enabled_services.txt"))
-{
-    Set-Service $line -StartupType Automatic
-    Start-Service $line
-}
-foreach($line in [System.IO.File]::ReadLines("disabled_services.txt"))
-{
-    Set-Service $line -StartupType Disabled
-    Stop-Service $line
-}
-
-Disable-PSRemoting -Force
-
-Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
-Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer
-Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
-
-write-output "|| ccs.ps1 finished ||"
-Stop-Transcript
-Invoke-Item ".\log.txt"
