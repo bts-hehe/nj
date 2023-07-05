@@ -23,9 +23,12 @@ Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass: ")
 2. If you want to do hardening, just use `ccs.ps1` and remember to configure firewall manually.
 ## Overview of `CCS.ps1`
 
-## Version Notes
-- doesn't currently work for Active Directory (users)
+## Todo List
 - check if secpol.inf working - in theory you really only need GPO **OR** secpol.inf, preferably GPO
-- need to make `backup.pol` (GPO backup) and upload here
+- need to make multiple GPOs and upload to this folder
+  - one is for the weird settings that break stuff
+  - one should fs get pts and don't break
 
-## tehe hello 
+- GPOs don't work at all rn i think 
+## wish list
+- doesn't currently work for Active Directory (users)

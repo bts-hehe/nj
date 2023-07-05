@@ -1,25 +1,4 @@
-Start-Transcript -Append log.txt
-Write-Output "|| ccs.ps1 started ||"
-
-# main
-Enable-Firewall
-Enable-Windows-Defender
-Set-Users -Password "CyberPatriot123!@#"
-Import-GPO
-#Import-Secpol
-Set-Audit-Policy
-Set-UAC
-Disable-Services
-Disable-Features
-#Set-Browser-Settings
-
-# main ends
-
-Write-Output "|| ccs.ps1 finished ||"
-Stop-Transcript
-Invoke-Item ".\log.txt"
-
-# functions
+# functions ---
 function Enable-Firewall {
     Set-Service mpssvc -StartupType Automatic
     Start-Service mpssvc
@@ -34,10 +13,25 @@ function Set-Users([string]$Password){
     Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Remote Management Users" $_ -Confirm:$false}
     
     $Users = Get-ChildItem "C:\Users"
+    
+    foreach($line in [System.IO.File]::ReadLines("users.txt"))
+    {
+        if ($null -eq $line){ # if user doesn't exist
+            New-LocalUser -Name $line -Password $Password
+        }
+    }
+    foreach($line in [System.IO.File]::ReadLines("admins.txt"))
+    {
+        if ($null -eq $line){ # if admin doesn't exist
+            New-LocalUser -Name $line -Password $Password
+        }
+    }
+
     Get-LocalUser | Set-LocalUser -Password $Password 
+    
     foreach($User in $Users) {
         $SEL = Select-String -Path "users.txt" -Pattern $User
-        if ($null -ne $SEL){ # if user is auth 
+        if ($null -ne $SEL){ # if user is authorized
             Enable-LocalUser $User
         }else{
             Disable-LocalUser $User
@@ -47,6 +41,7 @@ function Set-Users([string]$Password){
         $SEL = Select-String -Path "admins.txt" -Pattern $User
         if ($null -ne $SEL){ # if user is auth admin 
             Add-LocalGroupMember -Group "Administrators" -Member $User 
+            Enable-LocalUser $User
         }else{
             Remove-LocalGroupMember -Group "Administrators" -Member $User
         }
@@ -66,13 +61,15 @@ function Import-Secpol {
 function Disable-Services {
     foreach($line in [System.IO.File]::ReadLines("enabled_services.txt"))
     {
-        Set-Service $line -StartupType Automatic
-        Start-Service $line
+        Start-Service $line -Force
+        Set-Service $line -StartupType Automatic -Force
+        Write-Output "Started $line"
     }
     foreach($line in [System.IO.File]::ReadLines("disabled_services.txt"))
     {
+        Stop-Service $line -Force
         Set-Service $line -StartupType Disabled
-        Stop-Service $line
+        Write-Output "Stopped $line"
     }
 }
 function Disable-Features {
@@ -142,3 +139,24 @@ function Set-Misc-Settings {
 
     # HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
 }
+# functions end ---
+
+Start-Transcript -Append log.txt
+Write-Output "|| ccs.ps1 started ||"
+
+# main
+Enable-Firewall
+Enable-Windows-Defender
+Set-Users -Password "CyberPatriot123!@#"
+#Import-GPO
+#Import-Secpol
+Set-Audit-Policy
+Set-UAC
+Disable-Services
+Disable-Features
+#Set-Browser-Settings
+
+# main ends
+Write-Output "|| ccs.ps1 finished ||"
+Stop-Transcript
+Invoke-Item ".\log.txt"
