@@ -90,7 +90,7 @@ function Set-UAC {
     reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableLUA /d 1 /f 
     reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableVirtualization /d 0 /f 
 }
-function Set-Audit-Policy {
+function Set-AuditPolicy {
     auditpol /set /category:"Account Logon" /success:enable /failure:enable
     auditpol /set /category:"Account Management" /success:enable /failure:enable
     auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable
@@ -101,7 +101,7 @@ function Set-Audit-Policy {
     auditpol /set /category:"Privilege Use" /success:enable /failure:enable
     auditpol /set /category:"System" /success:enable /failure:enable
 }
-function Enable-Windows-Defender {
+function Enable-WindowsDefender {
     Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiVirus" /t REG_DWORD /d 0 /f
@@ -146,11 +146,11 @@ Write-Output "|| ccs.ps1 started ||"
 
 # main
 Enable-Firewall
-Enable-Windows-Defender
+Enable-WindowsDefender
 Set-Users -Password "CyberPatriot123!@#"
 #Import-GPO
 #Import-Secpol
-Set-Audit-Policy
+Set-AuditPolicy
 Set-UAC
 Disable-Services
 Disable-Features
