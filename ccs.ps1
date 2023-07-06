@@ -26,9 +26,7 @@ function Set-Users([SecureString]$Password){
             New-LocalUser -Name $line -Password $Password
         }
     }
-
     Get-LocalUser | Set-LocalUser -Password $Password 
-    
     foreach($User in $Users) {
         $SEL = Select-String -Path "users.txt" -Pattern $User
         if ($null -ne $SEL){ # if user is authorized
@@ -151,8 +149,7 @@ Write-Output "|| ccs.ps1 started ||"
 # main
 Enable-Firewall
 Enable-WindowsDefender
-$Password = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText
-Set-Users -Password $Password
+Set-Users -Password (ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText)
 #Import-GPO
 #Import-Secpol
 Set-AuditPolicy
