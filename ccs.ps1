@@ -5,29 +5,27 @@ function Enable-Firewall {
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
     Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
 }
-function Set-Users([SecureString]$Password){
+function Set-Users([String]$Password){
     Disable-LocalUser -Name "Administrator"
     Disable-LocalUser -Name "Guest"
-
     Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
     Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Remote Management Users" $_ -Confirm:$false}
     
-    $Users = Get-ChildItem "C:\Users"
-    
-    foreach($line in [System.IO.File]::ReadLines("users.txt"))
-    {
-        if ($null -eq $line){ # if user doesn't exist
-            New-LocalUser -Name $line -Password $Password
+    $UsersOnImage = Get-ChildItem "C:\Users"
+    $Users = Get-Content -Path "users.txt"
+    $Admins = Get-Content -Path "admins.txt"
+    foreach($User in $Users) {
+        if (-not((Get-LocalUser).Name -Contains $User)){ # if user doesn't exist
+            New-LocalUser -Name $User -Password $Password
         }
     }
-    foreach($line in [System.IO.File]::ReadLines("admins.txt"))
-    {
-        if ($null -eq $line){ # if admin doesn't exist
-            New-LocalUser -Name $line -Password $Password
+    foreach($Admin in $Admins) {
+        if (-not((Get-LocalUser).Name -Contains $User)){ # if admin doesn't exist
+            New-LocalUser -Name $Admin -Password $Password
         }
     }
     Get-LocalUser | Set-LocalUser -Password $Password 
-    foreach($User in $Users) {
+    foreach($User in $UsersOnImage) {
         $SEL = Select-String -Path "users.txt" -Pattern $User
         if ($null -ne $SEL){ # if user is authorized
             Enable-LocalUser $User
@@ -35,7 +33,7 @@ function Set-Users([SecureString]$Password){
             Disable-LocalUser $User
         }
     }
-    foreach($User in $Users) {
+    foreach($User in $UsersOnImage) {
         $SEL = Select-String -Path "admins.txt" -Pattern $User
         if ($null -ne $SEL){ # if user is auth admin 
             Add-LocalGroupMember -Group "Administrators" -Member $User 
@@ -56,21 +54,21 @@ function Import-Secpol {
     $dir ='.\secpol.inf'
     secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
 }
-function Disable-Services {
-    foreach($line in [System.IO.File]::ReadLines("enabled_services.txt"))
-    {
-        Start-Service $line -Force
-        Set-Service $line -StartupType Automatic -Force
-        Write-Output "Started $line"
+function Set-Services {
+    $EnabledServices = Get-Content -Path "enabled_services.txt"
+    $DisabledServices = Get-Content -Path "disabled_services.txt"
+    foreach($Service in $EnabledServices) {
+        Start-Service $Service -Force
+        Set-Service $Service -StartupType Automatic -Force
+        Write-Output "Started $Service"
     }
-    foreach($line in [System.IO.File]::ReadLines("disabled_services.txt"))
-    {
-        Stop-Service $line -Force
-        Set-Service $line -StartupType Disabled
-        Write-Output "Stopped $line"
+    foreach($Service in $DisabledServices) {
+        Stop-Service $Service -Force
+        Set-Service $Service -StartupType Disabled
+        Write-Output "Stopped $Service"
     }
 }
-function Disable-Features {
+function Set-Features {
     Disable-PSRemoting -Force
     Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
     Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer
@@ -100,11 +98,9 @@ function Set-AuditPolicy {
     auditpol /set /category:"System" /success:enable /failure:enable
 }
 function Enable-WindowsDefender {
-    # check if there are exclusions then do
-    if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)){
+    if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)) {
         Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
-    }
-    
+    }    
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiVirus" /t REG_DWORD /d 0 /f
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "ServiceKeepAlive" /t REG_DWORD /d 1 /f
@@ -141,6 +137,9 @@ function Set-Misc-Settings {
 
     # HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
 }
+function hardenSMB {
+
+}
 # functions end ---
 
 Start-Transcript -Append log.txt
@@ -149,13 +148,13 @@ Write-Output "|| ccs.ps1 started ||"
 # main
 Enable-Firewall
 Enable-WindowsDefender
-Set-Users -Password (ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText)
+#Set-Users -Password 'CyberPatriot123!@#'
 #Import-GPO
 #Import-Secpol
 Set-AuditPolicy
 Set-UAC
-Disable-Services
-Disable-Features
+Set-Services
+Set-Features
 #Set-Browser-Settings
 
 # main ends
