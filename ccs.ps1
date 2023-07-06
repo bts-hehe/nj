@@ -5,7 +5,7 @@ function Enable-Firewall {
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
     Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
 }
-function Set-Users([string]$Password){
+function Set-Users([SecureString]$Password){
     Disable-LocalUser -Name "Administrator"
     Disable-LocalUser -Name "Guest"
 
@@ -151,7 +151,8 @@ Write-Output "|| ccs.ps1 started ||"
 # main
 Enable-Firewall
 Enable-WindowsDefender
-Set-Users -Password "CyberPatriot123!@#"
+$Password = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText
+Set-Users -Password $Password
 #Import-GPO
 #Import-Secpol
 Set-AuditPolicy
