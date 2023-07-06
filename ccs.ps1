@@ -16,11 +16,13 @@ function Set-Users([String]$Password){
     $Admins = Get-Content -Path "admins.txt"
     foreach($User in $Users) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if user doesn't exist
+            Write-Output "Adding user $User"
             New-LocalUser -Name $User -Password $Password
         }
     }
     foreach($Admin in $Admins) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if admin doesn't exist
+            Write-Output "Adding admin $Admin"
             New-LocalUser -Name $Admin -Password $Password
         }
     }
@@ -58,13 +60,13 @@ function Set-Services {
     $EnabledServices = Get-Content -Path "enabled_services.txt"
     $DisabledServices = Get-Content -Path "disabled_services.txt"
     foreach($Service in $EnabledServices) {
-        Start-Service $Service -Force
-        Set-Service $Service -StartupType Automatic -Force
+        Set-Service $Service -StartupType Automatic
+        Start-Service $Service
         Write-Output "Started $Service"
     }
     foreach($Service in $DisabledServices) {
-        Stop-Service $Service -Force
         Set-Service $Service -StartupType Disabled
+        Stop-Service $Service
         Write-Output "Stopped $Service"
     }
 }
