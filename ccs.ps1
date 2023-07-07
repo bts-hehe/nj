@@ -49,9 +49,9 @@ function Set-Users([String]$random) {
 function Import-GPO{
     Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
         $gpopath = ".\GPOs\$gpoitem"
-        LGPO.exe /g $gpopath > $null 2>&1
+        ./LGPO.exe /g $gpopath > $null 2>&1
     }
-    gpdupdate /force
+    gpupdate /force
 }
 function Import-Secpol {
     $dir ='.\secpol.inf'
