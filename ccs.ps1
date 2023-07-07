@@ -55,7 +55,7 @@ function Import-GPO{
 }
 function Import-Secpol {
     $dir ='.\secpol.inf'
-    secedit.exe /configure /db %windir%\security\local.sdb /cfg $dir
+    secedit.exe /configure /db C:\Windows\security\local.sdb /cfg $dir
 }
 function Set-Services {
     $EnabledServices = Get-Content -Path "enabled_services.txt"
