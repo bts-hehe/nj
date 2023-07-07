@@ -17,13 +17,13 @@ function Set-Users([String]$random) {
     foreach($User in $Users) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if user doesn't exist
             Write-Output "Adding user $User"
-            New-LocalUser -Name $User
+            New-LocalUser -Name $User -Password $random
         }
     }
     foreach($Admin in $Admins) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if admin doesn't exist
             Write-Output "Adding admin $Admin"
-            New-LocalUser -Name $Admin
+            New-LocalUser -Name $Admin -Password $random
         }
     }
     Get-LocalUser | Set-LocalUser -Password $random 
@@ -32,6 +32,7 @@ function Set-Users([String]$random) {
         if ($null -ne $SEL){ # if user is authorized
             Enable-LocalUser $User
         }else{
+            Write-Output "Disabling user $User"
             Disable-LocalUser $User
         }
     }
