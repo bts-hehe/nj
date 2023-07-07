@@ -20,11 +20,10 @@ Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass: ")
 2. If you want to do hardening, just use `ccs.ps1` and remember to configure firewall manually.
 
 ## Todo List
-- check if secpol.inf working - in theory you really only need GPO **OR** secpol.inf, preferably GPO
-- need to make multiple GPOs and upload to this folder
+- need to make multiple GPOs and upload to this folder -> windows doesn't like the current one, also current one has the [alwayselevatewheninstall](https://dmcxblue.gitbook.io/red-team-notes/privesc/unquoted-service-path) thing enabled 
   - one is for the weird settings that break stuff
   - one should fs get pts and don't break
 
-- GPOs don't work at all rn i think 
+- fix setting user passwords
 ## wish list
 - doesn't currently work for Active Directory (users)
