@@ -1,5 +1,6 @@
 # functions ---
 function Enable-Firewall {
+    Write-Output "Starting Windows Defender Firewall"
     Set-Service mpssvc -StartupType Automatic
     Start-Service mpssvc
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
@@ -49,11 +50,13 @@ function Set-Users([String]$random) {
 function Import-GPO{
     Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
         $gpopath = ".\GPOs\$gpoitem"
+        Write-Output "Importing $gpoitem"
         ./LGPO.exe /g $gpopath > $null 2>&1
     }
     gpupdate /force
 }
 function Import-Secpol {
+    Write-Output "Importing secpol.inf"
     $dir ='.\secpol.inf'
     secedit.exe /configure /db C:\Windows\security\local.sdb /cfg $dir
 }
@@ -81,6 +84,7 @@ function Set-Browser-Settings {
     # should eventually include chrome, edge, internet explorer, firefox and some form of parameter to toggle each of these
 }
 function Set-UAC {
+    Write-Output "Setting UAC"
     reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v FilterAdministratorToken /d 1 /f
     reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableUIADesktopToggle /d 0 /f
     reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v ConsentPromptBehaviorUser /d 0 /f 
@@ -90,6 +94,7 @@ function Set-UAC {
     reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /t REG_DWORD /v EnableVirtualization /d 0 /f 
 }
 function Set-AuditPolicy {
+    Write-Output "Setting Audit Policy"
     auditpol /set /category:"Account Logon" /success:enable /failure:enable
     auditpol /set /category:"Account Management" /success:enable /failure:enable
     auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable
@@ -101,6 +106,7 @@ function Set-AuditPolicy {
     auditpol /set /category:"System" /success:enable /failure:enable
 }
 function Enable-WindowsDefender {
+    Write-Output "Enabling and configuring Windows Defender"
     if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)) {
         Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
     }    
@@ -141,7 +147,7 @@ function Set-Misc-Settings {
     # HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
 }
 function hardenSMB {
-
+    Write-Output "Hardening the SMB service"
 }
 # functions end ---
 
@@ -153,7 +159,7 @@ Enable-Firewall
 Enable-WindowsDefender
 Set-Users -Password 'CyberPatriot123!@#'
 #Import-GPO
-#Import-Secpol
+Import-Secpol
 Set-AuditPolicy
 Set-UAC
 Set-Services
