@@ -5,7 +5,7 @@ function Enable-Firewall {
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
     Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
 }
-function Set-Users([String]$Password){
+function Set-Users([String]$random) {
     Disable-LocalUser -Name "Administrator"
     Disable-LocalUser -Name "Guest"
     Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
@@ -17,16 +17,16 @@ function Set-Users([String]$Password){
     foreach($User in $Users) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if user doesn't exist
             Write-Output "Adding user $User"
-            New-LocalUser -Name $User -Password $Password
+            New-LocalUser -Name $User
         }
     }
     foreach($Admin in $Admins) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if admin doesn't exist
             Write-Output "Adding admin $Admin"
-            New-LocalUser -Name $Admin -Password $Password
+            New-LocalUser -Name $Admin
         }
     }
-    Get-LocalUser | Set-LocalUser -Password $Password 
+    Get-LocalUser | Set-LocalUser -Password $random 
     foreach($User in $UsersOnImage) {
         $SEL = Select-String -Path "users.txt" -Pattern $User
         if ($null -ne $SEL){ # if user is authorized
@@ -150,7 +150,7 @@ Write-Output "|| ccs.ps1 started ||"
 # main
 Enable-Firewall
 Enable-WindowsDefender
-#Set-Users -Password 'CyberPatriot123!@#'
+Set-Users -Password 'CyberPatriot123!@#'
 #Import-GPO
 #Import-Secpol
 Set-AuditPolicy
