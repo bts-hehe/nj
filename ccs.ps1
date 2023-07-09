@@ -6,7 +6,7 @@ function Enable-Firewall {
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
     Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
 }
-function Set-Users([String]$random) {
+function Set-Users([SecureString]$Password) {
     Disable-LocalUser -Name "Administrator"
     Disable-LocalUser -Name "Guest"
     Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
@@ -18,16 +18,16 @@ function Set-Users([String]$random) {
     foreach($User in $Users) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if user doesn't exist
             Write-Output "Adding user $User"
-            New-LocalUser -Name $User -Password $random
+            New-LocalUser -Name $User -Password $Password
         }
     }
     foreach($Admin in $Admins) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if admin doesn't exist
             Write-Output "Adding admin $Admin"
-            New-LocalUser -Name $Admin -Password $random
+            New-LocalUser -Name $Admin -Password $Password
         }
     }
-    Get-LocalUser | Set-LocalUser -Password $random 
+    Get-LocalUser | Set-LocalUser -Password $Password 
     foreach($User in $UsersOnImage) {
         $SEL = Select-String -Path "users.txt" -Pattern $User
         if ($null -ne $SEL){ # if user is authorized
@@ -129,11 +129,11 @@ function Set-Misc-Settings {
     net share C:\ /delete
     bcdedit /set {current} nx AlwaysOn
 
-    reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile /v EnableFirewall /t REG_DWORD /d 1 /f # enable firewall
-    reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System /t REG_DWORD /v EnableSmartScreen /d 1 /f # enable smartscreen, this is a problem if downloading software
-    reg add HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers  /v DisableAutoplay /t REG_DWORD /d 1 /f # disable autoplay
-    reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 0 /f # enable autoupdate
-    reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v AUOptions /t REG_DWORD /d 3 /f # enable autoupdate
+    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile" /v EnableFirewall /t REG_DWORD /d 1 /f # enable firewall
+    reg add"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /t REG_DWORD /v EnableSmartScreen /d 1 /f # enable smartscreen, this is a problem if downloading software
+    reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers"  /v DisableAutoplay /t REG_DWORD /d 1 /f # disable autoplay
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 0 /f # enable autoupdate
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v AUOptions /t REG_DWORD /d 3 /f # enable autoupdate
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f # user cannot request remote assistance
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /t REG_DWORD /v fDenyTSConnections /d 0 /f # disable remote desktop
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server"/t REG_DWORD /v fSingleSessionPerUser /d 1 /f # disable auto admin login
@@ -157,7 +157,10 @@ Write-Output "|| ccs.ps1 started ||"
 # main
 Enable-Firewall
 Enable-WindowsDefender
-Set-Users -Password 'CyberPatriot123!@#'
+
+$SecureString = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
+Set-Users -Password $SecureString 
+
 #Import-GPO
 Import-Secpol
 Set-AuditPolicy
