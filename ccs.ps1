@@ -49,11 +49,12 @@ function Set-Users([SecureString]$Password) {
 }
 function Import-GPO{
     Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
-        $gpopath = ".\GPOs\$gpoitem"
+        #  $gpopath = ".\GPOs\$gpoitem"
+        #./LGPO.exe /g $gpopath > $null 2>&1
         Write-Output "Importing $gpoitem"
-        ./LGPO.exe /g $gpopath > $null 2>&1
+        Import-GPO -BackupGpoName $gpoitem -TargetName 'WackyGPO' -Path ".\GPOs"
     }
-    gpupdate /force
+    Invoke-GPUpdate -Force
 }
 function Import-Secpol {
     Write-Output "Importing secpol.inf"
