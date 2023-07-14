@@ -49,12 +49,13 @@ function Set-Users([SecureString]$Password) {
 }
 function Import-GPO{
     Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
-        #  $gpopath = ".\GPOs\$gpoitem"
-        #./LGPO.exe /g $gpopath > $null 2>&1
+        $gpopath = ".\GPOs\$gpoitem"
+        ./LGPO.exe /g $gpopath > $null 2>&1
         Write-Output "Importing $gpoitem"
-        Import-GPO -BackupGpoName $gpoitem -TargetName 'WackyGPO' -Path ".\GPOs"
+        #Import-GPO -BackupGpoName $gpoitem -TargetName 'WackyGPO' -Path ".\GPOs"
     }
-    Invoke-GPUpdate -Force
+    #Invoke-GPUpdate -Force
+    gpupdate /force
 }
 function Import-Secpol {
     Write-Output "Importing secpol.inf"
@@ -159,8 +160,8 @@ Write-Output "|| ccs.ps1 started ||"
 Enable-Firewall
 Enable-WindowsDefender
 
-$SecureString = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
-Set-Users -Password $SecureString 
+$SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
+Set-Users -Password $SecurePassword
 
 #Import-GPO
 Import-Secpol
