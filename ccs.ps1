@@ -6,7 +6,7 @@ function Enable-Firewall {
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
     Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
 }
-function Set-Users([SecureString]$Password) {
+function Set-LocalUsers([SecureString]$Password) {
     Disable-LocalUser -Name "Administrator"
     Disable-LocalUser -Name "Guest"
     Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
@@ -22,7 +22,7 @@ function Set-Users([SecureString]$Password) {
         }
     }
     foreach($Admin in $Admins) {
-        if (-not((Get-LocalUser).Name -Contains $User)){ # if admin doesn't exist
+        if (-not((Get-LocalUser).Name -Contains $Admin)){ # if admin doesn't exist
             Write-Output "Adding admin $Admin"
             New-LocalUser -Name $Admin -Password $Password
         }
@@ -45,7 +45,34 @@ function Set-Users([SecureString]$Password) {
         }else{
             Remove-LocalGroupMember -Group "Administrators" -Member $User
         }
-    }       
+    }
+}
+function Set-ADUsers([SecureString]$Password) {
+    Disable-ADAccount -Name "Administrator"
+    Disable-ADAccount -Name "Guest"
+
+    $DomainUsers = Get-ADGroupMember 'Domain Users' | Select-Object name,samaccountname
+    $DomainAdmins = Get-ADGroupMember 'Domain Users' | Select-Object name,samaccountname
+    
+    foreach($DomainUser in $DomainUsers) {
+        if (-not((Get-ADUser).Name -Contains $DomainUser)){ # if user doesn't exist
+            Write-Output "Adding Domain User $DomainUser"
+            New-ADUser -Name $DomainUser -Password $Password
+        }
+    }
+    foreach($DomainAdmin in $DomainAdmins) {
+        if (-not((Get-ADUser).Name -Contains $DomainAdmin)){ # if admin doesn't exist
+            Write-Output "Adding Domain Admin $DomainAdmin"
+            New-ADUser -Name $DomainAdmin -Password $Password
+        }
+    }
+    Get-ADUser | Set-ADUser -Password $Password
+    foreach($DomainUser in $UsersOnImage) {
+        
+    }
+    foreach($DomainAdmin in $UsersOnImage) {
+        
+    }
 }
 function Import-GPO{
     Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
@@ -62,9 +89,14 @@ function Import-Secpol {
     $dir ='.\secpol.inf'
     secedit.exe /configure /db C:\Windows\security\local.sdb /cfg $dir
 }
-function Set-Services {
+function Set-Services ([Boolean]$KeepRD){
+    if($KeepRD){
+        "TermService" | Write-Output -FilePath "enabled_services.txt"
+
+    }
     $EnabledServices = Get-Content -Path "enabled_services.txt"
     $DisabledServices = Get-Content -Path "disabled_services.txt"
+
     foreach($Service in $EnabledServices) {
         Write-Output "Starting $Service"
         Set-Service $Service -StartupType Automatic
@@ -137,7 +169,7 @@ function Set-Misc-Settings {
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 0 /f # enable autoupdate
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v AUOptions /t REG_DWORD /d 3 /f # enable autoupdate
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f # user cannot request remote assistance
-    reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /t REG_DWORD /v fDenyTSConnections /d 0 /f # disable remote desktop
+    #reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /t REG_DWORD /v fDenyTSConnections /d 0 /f # disable remote desktop
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server"/t REG_DWORD /v fSingleSessionPerUser /d 1 /f # disable auto admin login
     reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Autoadminlogin /t REG_SZ /d 0 /f # disable auto admin login
     reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DisableCAD /t REG_DWORD /d 1 /f # disable ctrl-alt-delete to login
@@ -188,13 +220,14 @@ Enable-Firewall
 Enable-WindowsDefender
 
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
-Set-Users -Password $SecurePassword
+Set-LocalUsers -Password $SecurePassword
+#Set-ADUsers -Password $SecurePassword
 
 #Import-GPO
 Import-Secpol
 Set-AuditPolicy
 Set-UAC
-Set-Services
+Set-Services -keepRD $false
 Set-Features
 #Set-Browser-Settings
 
