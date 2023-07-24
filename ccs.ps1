@@ -9,10 +9,12 @@ function Enable-Firewall {
 function Set-LocalUsers([SecureString]$Password) {
     Disable-LocalUser -Name "Administrator"
     Disable-LocalUser -Name "Guest"
+    Disable-LocalUser -Name "DefaultAccount"
     Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
     Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Remote Management Users" $_ -Confirm:$false}
     
     $UsersOnImage = Get-ChildItem "C:\Users"
+    #$UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
     $Users = Get-Content -Path "users.txt"
     $Admins = Get-Content -Path "admins.txt"
     foreach($User in $Users) {
@@ -50,10 +52,12 @@ function Set-LocalUsers([SecureString]$Password) {
 function Set-ADUsers([SecureString]$Password) {
     Disable-ADAccount -Name "Administrator"
     Disable-ADAccount -Name "Guest"
+    Disable-ADAccount -Name "DefaultAccount"
 
     $DomainUsers = Get-ADGroupMember 'Domain Users' | Select-Object name,samaccountname
     $DomainAdmins = Get-ADGroupMember 'Domain Users' | Select-Object name,samaccountname
-    
+    $DomainUsersOnImage = Get-ADAccount | Select-Object -ExpandProperty name
+
     foreach($DomainUser in $DomainUsers) {
         if (-not((Get-ADUser).Name -Contains $DomainUser)){ # if user doesn't exist
             Write-Output "Adding Domain User $DomainUser"
@@ -67,11 +71,23 @@ function Set-ADUsers([SecureString]$Password) {
         }
     }
     Get-ADUser | Set-ADUser -Password $Password
-    foreach($DomainUser in $UsersOnImage) {
-        
+    foreach($DomainUser in $DomainUsersOnImage) {
+        $SEL = Select-String -Path "users.txt" -Pattern $DomainUser
+        if ($null -ne $SEL){ # if user is authorized
+            Enable-ADAccount -Identity $DomainUser
+        }else{
+            Write-Output "Disabling user $DomainUser"
+            Disable-ADAccount $DomainUser
+        }
     }
-    foreach($DomainAdmin in $UsersOnImage) {
-        
+    foreach($DomainUser in $DomainUsersOnImage) {
+        $SEL = Select-String -Path "admins.txt" -Pattern $DomainUser
+        if ($null -ne $SEL){ # if user is auth domain admin 
+            Add-ADGroupMember -Group "Administrators" -Member $DomainUser 
+            Enable-ADAccount -Identity $DomainUser
+        }else{
+            Remove-ADAccount -Group "Administrators" -Member $DomainUser
+        }
     }
 }
 function Import-GPO{
@@ -141,9 +157,6 @@ function Set-AuditPolicy {
 }
 function Enable-WindowsDefender {
     Write-Output "Enabling and configuring Windows Defender"
-    if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)) {
-        Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
-    }    
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiSpyware" /t REG_DWORD /d 0 /f
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "DisableAntiVirus" /t REG_DWORD /d 0 /f
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v "ServiceKeepAlive" /t REG_DWORD /d 1 /f
@@ -158,6 +171,9 @@ function Enable-WindowsDefender {
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBlockAtFirstSeen" /t REG_DWORD /d 1 /f
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
     reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
+    if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)) {
+        Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
+    }    
 }
 function Set-Misc-Settings {
     net share C:\ /delete
