@@ -108,7 +108,7 @@ function Import-Secpol {
 function Set-Services ([Boolean]$KeepRD){
     if($KeepRD){
         "TermService" | Write-Output -FilePath "enabled_services.txt"
-
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
     }
     $EnabledServices = Get-Content -Path "enabled_services.txt"
     $DisabledServices = Get-Content -Path "disabled_services.txt"
@@ -243,6 +243,7 @@ Set-LocalUsers -Password $SecurePassword
 Import-Secpol
 Set-AuditPolicy
 Set-UAC
+#Set-Misc-Settings
 Set-Services -keepRD $false
 Set-Features
 #Set-Browser-Settings
