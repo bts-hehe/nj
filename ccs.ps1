@@ -93,7 +93,7 @@ function Set-ADUsers([SecureString]$Password) {
 function Import-GPO{
     Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
         Write-Output "Importing $gpoitem"
-        .\LGPO.exe /g GPOs\$gpoitem
+        ./LGPO.exe /g GPOs\$gpoitem
     }
     gpupdate /force
 }
@@ -127,8 +127,10 @@ function Set-Features {
     Disable-WindowsOptionalFeature -Online -FeatureName TelnetServer
     Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 }
-function Set-Browser-Settings {
-    # should eventually include chrome, edge, internet explorer, firefox and some form of parameter to toggle each of these
+function Invoke-FirefoxHardening {
+}
+function Invoke-EdgeHardening {
+
 }
 function Set-UAC {
     Write-Output "Setting UAC"
@@ -169,6 +171,8 @@ function Enable-WindowsDefender {
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
     reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
     if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)) {
+        Write-Output "Removing all Defender Exclusions: "
+        Write-Output (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
         Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
     }    
 }
