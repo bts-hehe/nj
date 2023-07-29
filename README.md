@@ -24,7 +24,5 @@ Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass: ")
   - one is for the weird settings that break stuff
   - one should fs get pts and don't break
 
-- make it work for AD (especially users)
-
 ## Notes/References
 - [SMB Hardening](https://github.com/ojas623/CYEE-scripts/blob/main/Windows%2010/application%20security/smbConfig.ps1)

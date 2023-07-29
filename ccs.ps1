@@ -92,12 +92,9 @@ function Set-ADUsers([SecureString]$Password) {
 }
 function Import-GPO{
     Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
-        $gpopath = ".\GPOs\$gpoitem"
-        ./LGPO.exe /g $gpopath > $null 2>&1
         Write-Output "Importing $gpoitem"
-        #Import-GPO -BackupGpoName $gpoitem -TargetName 'WackyGPO' -Path ".\GPOs"
+        cmd /c "LGPO.exe /g GPOs\$gpoitem"
     }
-    #Invoke-GPUpdate -Force
     gpupdate /force
 }
 function Import-Secpol {
