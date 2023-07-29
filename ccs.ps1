@@ -93,7 +93,7 @@ function Set-ADUsers([SecureString]$Password) {
 function Import-GPO{
     Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
         Write-Output "Importing $gpoitem"
-        cmd /c "LGPO.exe /g GPOs\$gpoitem"
+        .\LGPO.exe /g GPOs\$gpoitem
     }
     gpupdate /force
 }
@@ -172,7 +172,7 @@ function Enable-WindowsDefender {
         Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
     }    
 }
-function Set-Misc-Settings {
+function Invoke-MiscellaneousHardening {
     net share C:\ /delete
     bcdedit /set {current} nx AlwaysOn
 
@@ -193,7 +193,7 @@ function Set-Misc-Settings {
 
     # HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
 }
-function hardenSMB {
+function Invoke-SMBHardening {
     Write-Output "Hardening the SMB service"
     
     Set-SmbServerConfiguration -EnableSMB2Protocol $true
@@ -240,10 +240,12 @@ Set-LocalUsers -Password $SecurePassword
 Import-Secpol
 Set-AuditPolicy
 Set-UAC
-#Set-Misc-Settings
 Set-Services -keepRD $false
 Set-Features
 #Set-Browser-Settings
+
+# service hardening
+#Invoke-SMBHardening
 
 # main ends
 Write-Output "|| ccs.ps1 finished ||"
