@@ -1,6 +1,6 @@
 # functions ---
 function Enable-Firewall {
-    Write-Output "Starting Windows Defender Firewall"
+    Write-Output "Enabling and configuring Windows Firewall"
     Set-Service mpssvc -StartupType Automatic
     Start-Service mpssvc
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
@@ -17,6 +17,8 @@ function Set-LocalUsers([SecureString]$Password) {
     #$UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
     $Users = Get-Content -Path "users.txt"
     $Admins = Get-Content -Path "admins.txt"
+    Add-Content -Path "users.txt " -Value $Admins
+    
     foreach($User in $Users) {
         if (-not((Get-LocalUser).Name -Contains $User)){ # if user doesn't exist
             Write-Output "Adding user $User"
@@ -98,8 +100,8 @@ function Import-GPO{
     gpupdate /force
 }
 function Import-Secpol {
-    Write-Output "Importing secpol.inf"
-    $dir ='.\secpol.inf'
+    Write-Output "Importing secpol.inf" 
+    $dir ='.\secpol.inf' #annoying_secpol.inf
     secedit.exe /configure /db C:\Windows\security\local.sdb /cfg $dir
 }
 function Set-Services ([Boolean]$KeepRD){
@@ -128,9 +130,6 @@ function Set-Features {
     Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 }
 function Invoke-FirefoxHardening {
-}
-function Invoke-EdgeHardening {
-
 }
 function Set-UAC {
     Write-Output "Setting UAC"
@@ -169,15 +168,26 @@ function Enable-WindowsDefender {
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SubmitSamplesConsent" /t REG_DWORD /d 2 /f
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBlockAtFirstSeen" /t REG_DWORD /d 1 /f
     reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
-    reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 5 /F
+    reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v "TamperProtection" /t REG_DWORD /d 5 /F
     if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)) {
         Write-Output "Removing all Defender Exclusions: "
         Write-Output (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
         Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
-    }    
+    }else{
+        Write-Output "Did not find any Defender Exclusions to remove"
+    }   
+}
+function Invoke-RemoveNonDefaultSMBShares {
+    #net share C:\ /delete
+    $Shares = Get-SmbShare | Select-Object -ExpandProperty name
+    foreach($Share in $Shares) {
+        if(($Share -ne "ADMIN$") -and ($Share -ne "C$") -and ($Share -ne "IPC$")) {
+            Write-Output "Removed share $Share"
+            Remove-SmbShare -Name $Share
+        }
+    }
 }
 function Invoke-MiscellaneousHardening {
-    net share C:\ /delete
     bcdedit /set {current} nx AlwaysOn
 
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile" /v EnableFirewall /t REG_DWORD /d 1 /f # enable firewall
@@ -240,16 +250,19 @@ $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainTe
 Set-LocalUsers -Password $SecurePassword
 #Set-ADUsers -Password $SecurePassword
 
-#Import-GPO
+Import-GPO
 Import-Secpol
 Set-AuditPolicy
 Set-UAC
 Set-Services -keepRD $false
 Set-Features
+Invoke-RemoveNonDefaultSMBShares
 #Set-Browser-Settings
 
-# service hardening
-#Invoke-SMBHardening
+<#
+Write-Output "Starting Service Hardening"
+Invoke-SMBHardening
+#>
 
 # main ends
 Write-Output "|| ccs.ps1 finished ||"
