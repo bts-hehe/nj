@@ -20,6 +20,7 @@ NetTcpPortSharing
 NTDS
 PeerDistSvc
 PhoneSvc
+PlugPlay
 RasAuto
 RasMan
 RemoteAccess
