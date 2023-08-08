@@ -1,6 +1,7 @@
 # functions ---
 function Enable-Firewall {
     Write-Output "Enabling and configuring Windows Firewall"
+    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile" /v EnableFirewall /t REG_DWORD /d 1 /f # enable firewall
     Set-Service mpssvc -StartupType Automatic
     Start-Service mpssvc
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
@@ -13,8 +14,8 @@ function Set-LocalUsers([SecureString]$Password) {
     Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
     Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Remote Management Users" $_ -Confirm:$false}
     
-    $UsersOnImage = Get-ChildItem "C:\Users"
-    #$UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
+    #$UsersOnImage = Get-ChildItem "C:\Users"
+    $UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
     $Users = Get-Content -Path "users.txt"
     $Admins = Get-Content -Path "admins.txt"
     Add-Content -Path "users.txt " -Value $Admins
@@ -190,7 +191,6 @@ function Invoke-RemoveNonDefaultSMBShares {
 function Invoke-MiscellaneousHardening {
     bcdedit /set {current} nx AlwaysOn
 
-    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile" /v EnableFirewall /t REG_DWORD /d 1 /f # enable firewall
     reg add"HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /t REG_DWORD /v EnableSmartScreen /d 1 /f # enable smartscreen, this is a problem if downloading software
     reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers"  /v DisableAutoplay /t REG_DWORD /d 1 /f # disable autoplay
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 0 /f # enable autoupdate
@@ -257,8 +257,9 @@ Set-UAC
 Set-Services -keepRD $false
 Set-Features
 Invoke-RemoveNonDefaultSMBShares
-#Set-Browser-Settings
+Invoke-MiscellaneousHardening
 
+#Invoke-FirefoxHardening
 <#
 Write-Output "Starting Service Hardening"
 Invoke-SMBHardening
