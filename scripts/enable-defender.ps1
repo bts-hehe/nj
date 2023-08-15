@@ -18,5 +18,5 @@ if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandPr
     Write-Output (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
     Remove-MpPreference -ExclusionPath ( Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)
 }else{
-    Write-Output "Did not find any Defender Exclusions to remove"
+    Write-Output "Did not find any Defender Exclusions to remove."
 }   
