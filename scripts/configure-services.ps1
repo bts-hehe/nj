@@ -17,3 +17,9 @@ foreach($Service in $DisabledServices) {
     Set-Service $Service -StartupType Disabled
     Stop-Service $Service
 }
+
+<#
+probably should write a few try-catches for these for the following cases:
+- service not found
+- not given permission
+#>

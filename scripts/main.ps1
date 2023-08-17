@@ -17,7 +17,7 @@ function Invoke-MiscellaneousHardening {
     # HKLM\System\CurrentControlSet\Services\DNS\Parameters\SecureResponses
 }
 
-Start-Transcript -Append log.txt
+Start-Transcript -Append ../logs/log.txt
 Write-Output "|| Welcome to Win ||"
 
 $PSScriptRoot/install-tools.ps1
@@ -32,10 +32,10 @@ $PSScriptRoot/configure-ad-users.ps1 -Password $SecurePassword
 $PSScriptRoot/import-gpo.ps1
 $PSScriptRoot/import-secpol.ps1 # if secpol breaks, run uac.ps1, auditpol.ps1
 
-bcdedit /set {current} nx AlwaysOn
+$PSScriptRoot/configure-services.ps1 -keepRD $false
 
-$PSScriptRoot/configure-services.ps1 -keepRD $true
+bcdedit /set {current} nx AlwaysOn
 
 Write-Output "|| ccs.ps1 finished ||"
 Stop-Transcript
-Invoke-Item ".\log.txt"
+Invoke-Item ".../logs/log.txt"
