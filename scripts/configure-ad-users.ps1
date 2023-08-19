@@ -1,4 +1,5 @@
 param ($Password) # password is passed in as a SecureString parameter
+Write-Output "`n---Configuring AD Users"
 
 Disable-ADAccount -Name "Administrator"
 Disable-ADAccount -Name "Guest"

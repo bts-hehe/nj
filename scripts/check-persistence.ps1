@@ -1,4 +1,4 @@
-Write-Output "Checking persistence methods"
+Write-Output "`n---Checking Persistence Methods"
 
 $run = (reg query "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run")
 Write-Output $run

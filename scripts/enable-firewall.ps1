@@ -1,3 +1,5 @@
+Write-Output "`n---Configuring Windows Defender Firewall"
+
 if((Get-Service -Name 'mpssvc').Status -ne $running){
     Write-Output "Windows Defender Firewall is not on. Attempting to turn it on."
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile" /v EnableFirewall /t REG_DWORD /d 1 /f # enable firewall

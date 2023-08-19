@@ -1,3 +1,4 @@
+Write-Output "`n---Configuring Group Policy"
 $gpresultOutput = (gpresult /r)
 $gpresultOutput | Set-Content -Path "../logs/gpresult.txt"
 # ^somehow parse this properly

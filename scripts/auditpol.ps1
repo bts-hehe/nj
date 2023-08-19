@@ -1,4 +1,4 @@
-Write-Output "Setting Audit Policy"
+Write-Output "`n---Setting Audit Policy"
 auditpol /set /category:"Account Logon" /success:enable /failure:enable
 auditpol /set /category:"Account Management" /success:enable /failure:enable
 auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable

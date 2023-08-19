@@ -1,5 +1,5 @@
 param ($Password) # password is passed in as a SecureString parameter
-
+Write-Output "`n---Configuring Local Users"
 Disable-LocalUser -Name "Administrator"
 Disable-LocalUser -Name "Guest"
 Disable-LocalUser -Name "DefaultAccount"
