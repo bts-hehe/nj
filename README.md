@@ -8,8 +8,8 @@ This is a script meant to harden your windows server or workstation.
   ```powershell
   Set-ExecutionPolicy Unrestricted -force
   ```
-  3. Run the `ccs.ps1` file. The output will be logged to `log.txt` which is opened automatically when the script is done.
-  4. Remember to delete the `win-main` extracted and zipped folder once you are done.
+  3. Run the `main.ps1` file inside the scripts folder. The output will be logged to `log.txt` which is opened automatically when the script is done.
+  5. Remember to delete the `win-main` extracted and zipped folder once you are done.
 
 ## RvB competitions
 1. Download folder to local machine. Run only the password script:
