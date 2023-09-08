@@ -4,13 +4,12 @@ Disable-LocalUser -Name "Administrator"
 Disable-LocalUser -Name "Guest"
 Disable-LocalUser -Name "DefaultAccount"
 
-Get-LocalGroupMember "Remote Desktop Users" | ForEach-Object {Remove-LocalGroupMember "Remote Desktop Users" $_ -Confirm:$false}
-Get-LocalGroupMember "Remote Management Users" | ForEach-Object {Remove-LocalGroupMember "Remote Management Users" $_ -Confirm:$false}
-
-$UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
 $Users = Get-Content -Path "users.txt"
 $Admins = Get-Content -Path "admins.txt"
 Add-Content -Path "users.txt " -Value $Admins # the list of admins is added to the users list to make things easier
+
+$UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
+Set-Content -Path ../logs/initial-local-users.txt $UsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
 
 foreach($User in $Users) {
     if (-not((Get-LocalUser).Name -Contains $User)){ # if user doesn't exist

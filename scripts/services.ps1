@@ -1,5 +1,7 @@
 param($KeepRD)
+
 Write-Output "`n---Configuring Services"
+
 if($KeepRD){
     Write-Output "Keeping RDP"
     "TermService" | Write-Output -FilePath "enabled_services.txt"
@@ -8,8 +10,10 @@ if($KeepRD){
     Write-Output "Disabling RDP"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 1
 }
+
 $EnabledServices = Get-Content -Path "enabled_services.txt"
 $DisabledServices = Get-Content -Path "disabled_services.txt"
+
 foreach($Service in $EnabledServices) {
     Write-Output "Starting $Service"
     Set-Service $Service -StartupType Automatic

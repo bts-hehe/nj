@@ -5,11 +5,12 @@ Disable-ADAccount -Name "Administrator"
 Disable-ADAccount -Name "Guest"
 Disable-ADAccount -Name "DefaultAccount"
 
-$DomainUsers = Get-Content -Path "users.txt"
-$DomainAdmins = Get-Content -Path "admins.txt"
+$DomainUsers = Get-Content -Path "users.txt" # list of authorized AD users from readme
+$DomainAdmins = Get-Content -Path "admins.txt" # list of authorized AD admins from readme
 # at this point, assumes configure-local-users has already been run, bc it needs users.txt to also contain admins.txt list
 
 $DomainUsersOnImage = Get-ADAccount | Select-Object -ExpandProperty name
+Set-Content -Path ../logs/initial-ad-users.txt $DomainUsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
 
 foreach($DomainUser in $DomainUsers) {
     if (-not((Get-ADUser).Name -Contains $DomainUser)){ # if user doesn't exist
