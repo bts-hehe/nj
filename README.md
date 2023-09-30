@@ -20,9 +20,6 @@ Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass: ")
 2. If you want to do hardening, just use `ccs.ps1` and remember to configure firewall manually.
 
 ## Todo List
-- need to make multiple GPOs and upload to this folder -> windows doesn't like the current one, also current one has the [alwayselevatewheninstall](https://dmcxblue.gitbook.io/red-team-notes/privesc/unquoted-service-path) thing enabled 
-  - one is for the weird settings that break stuff
-  - one should fs get pts and don't break
 
 ## Notes/References
 - [SMB Hardening](https://github.com/ojas623/CYEE-scripts/blob/main/Windows%2010/application%20security/smbConfig.ps1)
