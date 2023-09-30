@@ -1,13 +1,15 @@
 Start-Transcript -Append ../logs/log.txt
 Write-Output "|| Welcome to Win ||`n"
 
-& $PSScriptRoot/forensics.ps1 -DisplayLog $true
+& $PSScriptRoot/recon.ps1 -DisplayLog $true
 & $PSScriptRoot/install-tools.ps1
 
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1
 
 $SecurePassword = ConvertTo-SecureString -String 'MonkePatriot123!@#' -AsPlainText -Force
+
+# we need to have recon.ps1 tell us if we have an ad server, if so run the ad-users.ps1
 & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
 & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
 
