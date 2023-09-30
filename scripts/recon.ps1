@@ -1,7 +1,8 @@
 param($DisplayLog)
-Write-Output "`n---Conducting System Forensics"
+Write-Output "`n---Collecting System Info"
 <#
 - determine what OS/version this windows is
+- does this computer have AD server?
 - get initial list of users, admins (ad or local depending on server/workstation)
 - log to recon.txt
 #>
