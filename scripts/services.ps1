@@ -11,8 +11,8 @@ if($KeepRD){
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 1
 }
 
-$EnabledServices = Get-Content -Path "enabled_services.txt"
-$DisabledServices = Get-Content -Path "disabled_services.txt"
+$EnabledServices = Get-Content -Path "../enabled_services.txt"
+$DisabledServices = Get-Content -Path "../disabled_services.txt"
 
 foreach($Service in $EnabledServices) {
     Write-Output "Starting $Service"
