@@ -9,8 +9,7 @@ This is a script meant to harden your windows server or workstation.
   Set-ExecutionPolicy Unrestricted -Confirm -Force
   .\scripts\main.ps1
   ```
-  The output will be logged to `log.txt` which is opened automatically when the script is done.
-  5. Remember to delete the `win-main` extracted and zipped folder once you are done.
+  The output will be logged to `log.txt` which is opened automatically when the script is done. Remember to delete the `win-main` extracted and zipped folder once you are done.
 
 ## RvB competitions
 1. Download folder to local machine. Run only the password script:
