@@ -1,8 +1,10 @@
 Write-Output "`n---Configuring Services"
 $KeepRDP = "N"
 $KeepFTP = "N"
+$KeepSMB = "N"
 $KeepRDP = Read-Host "Is RDP a critical service? [Y/N] (Default: N)"
 $KeepFTP = Read-Host "Is FTP a critical service? [Y/N] (Default: N)"
+$KeepSMB = Read-Host "Is SMB a critical service? [Y/N] (Default: N)"
 
 if($KeepRDP -eq "Y"){
     Write-Output "Keeping RDP"
@@ -15,6 +17,12 @@ if($KeepRDP -eq "Y"){
 if($KeepFTP -eq "Y"){
     Write-Output "Keeping FTP"
     "ftpsvc" | Write-Output -FilePath "enabled_services.txt"
+}else{
+    Write-Output "Disabling FTP"
+}
+if($KeepSMB -eq "Y"){
+    Write-Output "Keeping SMB"
+    "Server" | Write-Output -FilePath "enabled_services.txt"
 }else{
     Write-Output "Disabling FTP"
 }

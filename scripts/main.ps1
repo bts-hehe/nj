@@ -1,5 +1,5 @@
 Start-Transcript -Append ../logs/log.txt
-Write-Output "|| Welcome to Win ||`n"
+Write-Output "|| Welcome to Win ||`n" - ForegroundColor Green
 
 & $PSScriptRoot/recon.ps1
 
@@ -33,6 +33,11 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 & $PSScriptRoot/remove-nondefaultshares.ps1 
 bcdedit /set {current} nx AlwaysOn
 
-Write-Output "|| ccs.ps1 finished ||`n"
+$firefox = Read-Host "Is Firefox on this system? [Y/N] (Default: N)"
+if($firefox -eq "Y"){
+    &PSScriptRoot/configure-firefox.ps1
+}
+
+Write-Output "|| ccs.ps1 finished ||`n" - ForegroundColor Green
 Stop-Transcript
 Invoke-Item ".../logs/log.txt"

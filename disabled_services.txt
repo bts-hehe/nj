@@ -32,6 +32,7 @@ SEMgrSvc
 SensorDataService
 SensorService
 SensrSvc
+Server
 SessionEnv
 SharedAccess
 shpamsvc
