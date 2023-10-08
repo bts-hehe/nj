@@ -6,7 +6,7 @@ Disable-LocalUser -Name "DefaultAccount"
 
 $Users = Get-Content -Path "users.txt"
 $Admins = Get-Content -Path "admins.txt"
-Add-Content -Path "users.txt " -Value $Admins # the list of admins is added to the users list to make things easier
+Add-Content -Path "users.txt " -Value $Admins # the list of admins is added to the users list so that admins that don't exist yet are also created
 
 $UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
 Set-Content -Path ../logs/initial-local-users.txt $UsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
@@ -14,13 +14,14 @@ Set-Content -Path ../logs/initial-local-users.txt $UsersOnImage # log initial AD
 foreach($User in $Users) {
     if (-not((Get-LocalUser).Name -Contains $User)){ # if user doesn't exist
         Write-Output "Adding user $User"
-        New-LocalUser -Name $User -Password $Password
+        New-LocalUser -Name $User -Password $Password -PasswordNeverExpires $false -UserMayChangePassword $true
+
     }
 }
 Get-LocalUser | Set-LocalUser -Password $Password # set everyone's password
 foreach($User in $UsersOnImage) {
     $SEL = Select-String -Path "users.txt" -Pattern $User
-    if ($SEL -ne $null){ # if user is authorized
+    if ($null -ne $SEL){ # if user is authorized
         Enable-LocalUser $User
     }else{
         Write-Output "Disabling user $User"
@@ -29,7 +30,7 @@ foreach($User in $UsersOnImage) {
 }
 foreach($User in $UsersOnImage) {
     $SEL = Select-String -Path "admins.txt" -Pattern $User
-    if ($SEL -ne $null){ # if user is auth admin 
+    if ($null -ne $SEL){ # if user is auth admin 
         Add-LocalGroupMember -Group "Administrators" -Member $User 
     }else{
         Remove-LocalGroupMember -Group "Administrators" -Member $User

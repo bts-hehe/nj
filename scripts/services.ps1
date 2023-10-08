@@ -1,14 +1,22 @@
-param($KeepRD)
-
 Write-Output "`n---Configuring Services"
+$KeepRDP = "N"
+$KeepFTP = "N"
+$KeepRDP = Read-Host "Is RDP a critical service? [Y/N] (Default: N)"
+$KeepFTP = Read-Host "Is FTP a critical service? [Y/N] (Default: N)"
 
-if($KeepRD){
+if($KeepRDP -eq "Y"){
     Write-Output "Keeping RDP"
     "TermService" | Write-Output -FilePath "enabled_services.txt"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
 }else{
     Write-Output "Disabling RDP"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 1
+}
+if($KeepFTP -eq "Y"){
+    Write-Output "Keeping FTP"
+    "ftpsvc" | Write-Output -FilePath "enabled_services.txt"
+}else{
+    Write-Output "Disabling FTP"
 }
 
 $EnabledServices = Get-Content -Path "../enabled_services.txt"

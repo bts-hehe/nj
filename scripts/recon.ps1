@@ -1,4 +1,3 @@
-param($DisplayLog)
 Write-Output "`n---Collecting System Info"
 <#
 - determine what OS/version this windows is
