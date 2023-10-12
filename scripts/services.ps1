@@ -24,7 +24,7 @@ if($KeepSMB -eq "Y"){
     Write-Output "Keeping SMB"
     "Server" | Write-Output -FilePath "enabled_services.txt"
 }else{
-    Write-Output "Disabling FTP"
+    Write-Output "Disabling SMB"
 }
 
 $EnabledServices = Get-Content -Path "../enabled_services.txt"
