@@ -47,4 +47,4 @@ Start-Process explorer.exe
 
 Write-Output "|| ccs.ps1 finished ||`n" - ForegroundColor Green
 Stop-Transcript
-Invoke-Item ".../logs/log.txt"
+Invoke-Item "../logs/log.txt"
