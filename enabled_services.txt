@@ -51,6 +51,7 @@ UserManager
 UsoSvc
 W32Time
 W3SVC
+webthreatdefsvc
 Wcmsvc
 Wecsvc
 WEPHOSTSVC
