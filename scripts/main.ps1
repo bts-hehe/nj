@@ -1,4 +1,11 @@
 Start-Transcript -Append ../logs/log.txt
+
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if(-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
+    Write-Output "Script not being run with Admin Privileges. Stopping."
+    exit
+}
+
 Write-Output "|| Welcome to Win ||`n" - ForegroundColor Green
 
 & $PSScriptRoot/recon.ps1
