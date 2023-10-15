@@ -1,9 +1,13 @@
-Start-Transcript -Append ../logs/log.txt
+Start-Transcript -Append "$PSScriptRoot/../logs/log.txt"
 
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if(-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
     Write-Output "Script not being run with Admin Privileges. Stopping."
     exit
+}
+$PSGreaterThan3 = false
+if($PSVersionTable.PSVersion | Select-object -expandproperty Major -ge 3){ # check Powershell version > 3+
+    $PSGreaterThan3 = true
 }
 
 Write-Output "|| Welcome to Win ||`n" - ForegroundColor Green
@@ -18,9 +22,9 @@ if($installTools -eq "Y"){
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1
 
+$ad = Read-Host "Does this computer have AD? [Y/N] (Default: N)"
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
 & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
-$ad = Read-Host "Does this computer have AD? [Y/N] (Default: N)"
 if($ad -eq "Y"){
     & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
 }
@@ -38,11 +42,11 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 & $PSScriptRoot/services.ps1
 
 & $PSScriptRoot/remove-nondefaultshares.ps1 
-bcdedit /set {current} nx AlwaysOn
+cmd /c (bcdedit /set {current} nx AlwaysOn)
 
 $firefox = Read-Host "Is Firefox on this system? [Y/N] (Default: N)"
 if($firefox -eq "Y"){
-    &PSScriptRoot/configure-firefox.ps1
+    & $PSScriptRoot/configure-firefox.ps1
 }
 
 # view hidden files
@@ -54,4 +58,4 @@ Start-Process explorer.exe
 
 Write-Output "|| ccs.ps1 finished ||`n" - ForegroundColor Green
 Stop-Transcript
-Invoke-Item "../logs/log.txt"
+Invoke-Item "$PSScriptRoot/../logs/log.txt"

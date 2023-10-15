@@ -7,12 +7,12 @@ Disable-LocalUser -Name "Administrator"
 Disable-LocalUser -Name "Guest"
 Disable-LocalUser -Name "DefaultAccount"
 
-$Users = Get-Content -Path "users.txt"
-$Admins = Get-Content -Path "admins.txt"
-Add-Content -Path "users.txt " -Value $Admins # the list of admins is added to the users list so that admins that don't exist yet are also created
+$Users = Get-Content -Path "$PSScriptRoot/../users.txt"
+$Admins = Get-Content -Path "$PSScriptRoot/../admins.txt"
+Add-Content -Path "$PSScriptRoot/../users.txt " -Value $Admins # the list of admins is added to the users list so that admins that don't exist yet are also created
 
 $UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
-Set-Content -Path ../logs/initial-local-users.txt $UsersOnImage # log initial local users on image to file in case we mess up or wanna check smth
+Set-Content -Path "$PSScriptRoot/../logs/initial-local-users.txt" $UsersOnImage # log initial local users on image to file in case we mess up or wanna check smth
 
 foreach($User in $Users) {
     if ($UsersOnImage -notcontains $User){
