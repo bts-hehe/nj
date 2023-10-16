@@ -5,9 +5,9 @@ if(-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Admi
     Write-Output "Script not being run with Admin Privileges. Stopping."
     exit
 }
-$PSGreaterThan3 = false
-if($PSVersionTable.PSVersion | Select-object -expandproperty Major -ge 3){ # check Powershell version > 3+
-    $PSGreaterThan3 = true
+if(-not ($PSVersionTable.PSVersion | Select-object -expandproperty Major -ge 3)){ # check Powershell version > 3+
+    Write-Output "The Powershell version does not support PSScriptRoot. Stopping." 
+    exit
 }
 
 Write-Output "|| Welcome to Win ||`n" - ForegroundColor Green

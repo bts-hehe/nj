@@ -9,7 +9,7 @@ This is a script meant to harden your windows server or workstation.
   Set-ExecutionPolicy Unrestricted -Confirm -Force
   .\scripts\main.ps1
   ```
-  The output will be logged to `log.txt` which is opened automatically when the script is done. Remember to delete the `win-main` extracted and zipped folder once you are done.
+  The output will be logged to `log.txt` which is opened automatically when the script is done. 
 
 ## RvB competitions
 1. Download folder to local machine. Run only the password script:
@@ -19,5 +19,5 @@ Get-ADUser | Set-ADUser -Password (Read-Host -AsSecureString "AD pass: ")
 ```
 2. If you want to do hardening, just do normal ccs stuff.
 
-## Notes/References
+## References
 - [SMB Hardening](https://github.com/ojas623/CYEE-scripts/blob/main/Windows%2010/application%20security/smbConfig.ps1)
