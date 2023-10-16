@@ -7,8 +7,8 @@ Disable-LocalUser -Name "Administrator"
 Disable-LocalUser -Name "Guest"
 Disable-LocalUser -Name "DefaultAccount"
 
-$Users = Get-Content -Path "users.txt"
-$Admins = Get-Content -Path "admins.txt"
+$Users = Get-Content -Path "../users.txt"
+$Admins = Get-Content -Path "../admins.txt"
 Add-Content -Path "users.txt " -Value $Admins # the list of admins is added to the users list so that admins that don't exist yet are also created
 
 $UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
