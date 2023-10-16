@@ -5,6 +5,6 @@ $gpresultOutput | Set-Content -Path "../logs/gpresult.txt"
 
 Foreach ($gpoitem in Get-ChildItem ".\GPOs") {
     Write-Output "Importing Group Policy $gpoitem"
-    $PSScriptRoot/LGPO.exe /g GPOs\$gpoitem
+    -cmd /c LGPO.exe /g ../GPOs
 }
 gpupdate /force
