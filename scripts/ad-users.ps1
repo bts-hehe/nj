@@ -4,15 +4,15 @@ param (
 )
 Write-Output "`n---Configuring AD Users"
 
-Disable-ADAccount -Name "Administrator"
-Disable-ADAccount -Name "Guest"
-Disable-ADAccount -Name "DefaultAccount"
+Disable-ADAccount "Administrator"
+Disable-ADAccount "Guest"
+Disable-ADAccount "DefaultAccount"
 
 $Users = Get-Content -Path "../users.txt" # list of authorized AD users from readme
 $Admins = Get-Content -Path "../admins.txt" # list of authorized AD admins from readme
 # at this point, assumes configure-local-users has already been run, bc it needs users.txt to also contain admins.txt list
 
-$DomainUsersOnImage = Get-ADAccount | Select-Object -ExpandProperty name
+$DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name
 Set-Content -Path ../logs/initial-ad-users.txt $DomainUsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
 
 foreach($DomainUser in $DomainUsers) {
@@ -21,10 +21,11 @@ foreach($DomainUser in $DomainUsers) {
         New-ADUser -Name $DomainUser -Password $Password
     }
 }
-Get-ADUser | Set-ADUser -Password $Password
+Get-ADUser -Filter *| Set-ADAccountPassword -NewPassword $Password
 foreach($DomainUser in $DomainUsersOnImage) {
     if ($Users -contains $DomainUser){ # if user is authorized because the username was found in users.txt
         Enable-ADAccount -Identity $DomainUser
+        Write-Output "Enabling user $DomainUser"
     }else{
         Write-Output "Disabling user $DomainUser"
         Disable-ADAccount $DomainUser
@@ -33,8 +34,10 @@ foreach($DomainUser in $DomainUsersOnImage) {
 foreach($DomainAdmin in $DomainUsersOnImage) {
     if ($Admins -contains $DomainAdmin){ # if user is authorized domain admin because username was found in admins.txt 
         Enable-ADAccount -Identity $DomainUser
-        Add-ADGroupMember -Group "Administrators" -Member $DomainUser 
+        Add-ADGroupMember -Identity "Domain Admins" -Members $DomainAdmin
+        Write-Output "Adding user $DomainAdmin to admin" 
     }else{
-        Remove-ADAccount -Group "Administrators" -Member $DomainUser
+        Remove-ADGroupMember -Identity "Domain Admins" -Members $DomainAdmin
+        Write-Output "Removing user $DomainAdmin from admin" 
     }
 }
