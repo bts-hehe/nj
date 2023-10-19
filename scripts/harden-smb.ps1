@@ -1,4 +1,4 @@
-Write-Output "`n---Hardening the SMB service"
+Write-Output "`n---Hardening the SMB service, uses SMB 2"
 
 Set-SmbServerConfiguration -EnableSMB2Protocol $true
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" -Name "DisableBandwidthThrottling" -Type "DWORD" -Value 1 -Force

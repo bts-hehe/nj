@@ -8,12 +8,12 @@ Disable-ADAccount "Administrator"
 Disable-ADAccount "Guest"
 Disable-ADAccount "DefaultAccount"
 
-$Users = Get-Content -Path "../users.txt" # list of authorized AD users from readme
-$Admins = Get-Content -Path "../admins.txt" # list of authorized AD admins from readme
+$Users = Get-Content -Path "$PSScriptRoot/../users.txt" # list of authorized AD users from readme
+$Admins = Get-Content -Path "$PSScriptRoot/../admins.txt" # list of authorized AD admins from readme
 # at this point, assumes configure-local-users has already been run, bc it needs users.txt to also contain admins.txt list
 
 $DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name
-Set-Content -Path ../logs/initial-ad-users.txt $DomainUsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
+Set-Content -Path "$PSScriptRoot/../logs/initial-ad-users.txt" $DomainUsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
 
 foreach($DomainUser in $DomainUsers) {
     if ($UsersOnImage -notcontains $DomainUser){ # if user doesn't exist
