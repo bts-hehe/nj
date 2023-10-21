@@ -30,7 +30,7 @@ foreach($User in $UsersOnImage) {
     }
 }
 foreach($User in $UsersOnImage) {
-    if ($Admins -contains $Users){ # if user is auth admin 
+    if ($Admins -contains $User){ # if user is auth admin 
         Add-LocalGroupMember -Group "Administrators" -Member $User 
     }else{
         Remove-LocalGroupMember -Group "Administrators" -Member $User
