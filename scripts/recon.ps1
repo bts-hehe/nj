@@ -8,7 +8,10 @@ Write-Output "`n---Collecting System Info"
 
 #systeminfo.exe
 Get-ComputerInfo | Select-Object -ExpandProperty OSName | Out-File -FilePath $PSScriptRoot/../logs/os.txt
-Get-Content (Get-PSReadlineOption).HistorySavePath | Out-File -FilePath $PSScriptRoot/../logs/pshistory.txt
-Get-Content (doskey /history) | Out-File -FilePath $PSScriptRoot/../logs/cmdhistory.txt # this is probably blank bc cmd logging stops when session ends
 
-Get-Content (doskey /history) | Out-File -FilePath $PSScriptRoot/../logs/cmdhistory.txt # this is probably blank bc cmd logging stops when session ends
+if(-not((Get-Content (Get-PSReadlineOption).HistorySavePath) -eq $null)){
+  Get-Content (Get-PSReadlineOption).HistorySavePath | Out-File -FilePath $PSScriptRoot/../logs/pshistory.txt
+}
+if(-not((Get-Content (doskey /history)) -eq $null)){
+  Get-Content (doskey /history) | Out-File -FilePath $PSScriptRoot/../logs/cmdhistory.txt # this is probably blank bc cmd logging stops when session ends
+}
