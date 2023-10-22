@@ -12,6 +12,3 @@ Get-ComputerInfo | Select-Object -ExpandProperty OSName | Out-File -FilePath $PS
 if(-not((Get-Content (Get-PSReadlineOption).HistorySavePath) -eq $null)){
   Get-Content (Get-PSReadlineOption).HistorySavePath | Out-File -FilePath $PSScriptRoot/../logs/pshistory.txt
 }
-if(-not((Get-Content (doskey /history)) -eq $null)){
-  Get-Content (doskey /history) | Out-File -FilePath $PSScriptRoot/../logs/cmdhistory.txt # this is probably blank bc cmd logging stops when session ends
-}
