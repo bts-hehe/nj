@@ -56,6 +56,6 @@ taskkill /f /im explorer.exe
 Start-Sleep 2
 Start-Process explorer.exe
 
-Write-Output "|| ccs.ps1 finished ||`n" - ForegroundColor Green
+Write-Output "|| ccs.ps1 finished ||`n"
 Stop-Transcript
 Invoke-Item "$PSScriptRoot/../logs/log.txt"
