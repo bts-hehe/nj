@@ -10,20 +10,22 @@ if(($PSVersionTable.PSVersion | Select-object -expandproperty Major) -lt 3){ # c
     exit
 }
 
-Write-Output "|| Welcome to Win ||`n" - ForegroundColor Green
+$StartTime = Get-Date
+Write-Output "Running Win Script on $StartTime`n"
 
 & $PSScriptRoot/recon.ps1
 
-$installTools = Read-Host "Install tools? May take a while: [Y/N] (Default: N)"
-if($installTools -eq "Y"){
+$installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
+if($installTools -eq "n"){
     & $PSScriptRoot/install-tools.ps1
 }
 
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1
 
-$ad = Read-Host "Does this computer have AD? [Y/N] (Default: N)"
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
+$ad = Read-Host "Does this computer have AD? [y/n] (Default: y/n)"
+
 & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
 if($ad -eq "Y"){
     & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
@@ -35,7 +37,6 @@ if($ad -eq "Y"){
 & $PSScriptRoot/uac.ps1
 <#
 add check for if gpo break -> prob try/catch?
-
 if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 #>
 
@@ -44,8 +45,8 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 & $PSScriptRoot/remove-nondefaultshares.ps1 
 cmd /c (bcdedit /set {current} nx AlwaysOn)
 
-$firefox = Read-Host "Is Firefox on this system? [Y/N] (Default: N)"
-if($firefox -eq "Y"){
+$firefox = Read-Host "Is Firefox on this system? [y/n] (Default: n)"
+if($firefox -eq "n"){
     & $PSScriptRoot/configure-firefox.ps1
 }
 
@@ -56,6 +57,9 @@ taskkill /f /im explorer.exe
 Start-Sleep 2
 Start-Process explorer.exe
 
-Write-Output "|| ccs.ps1 finished ||`n"
+$EndTime = Get-Date
+$ts = New-TimeSpan -Start $StartTime -End $EndTime
+Write-output "Elapsed Time (HH:MM:SS): $ts`n"
 Stop-Transcript
+Add-Content -Path "$PSScriptRoot/../logs/logs.txt" "Script finished at $EndTime"
 Invoke-Item "$PSScriptRoot/../logs/log.txt"
