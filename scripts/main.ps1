@@ -46,7 +46,7 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 cmd /c (bcdedit /set {current} nx AlwaysOn)
 
 $firefox = Read-Host "Is Firefox on this system? [y/n] (Default: n)"
-if(($firefox -eq "n") -or ($firefox -eq "N")){
+if(($firefox -eq "Y") -or ($firefox -eq "y")){
     & $PSScriptRoot/configure-firefox.ps1
 }
 
