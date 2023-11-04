@@ -16,7 +16,7 @@ Write-Output "Running Win Script on $StartTime`n"
 & $PSScriptRoot/recon.ps1
 
 $installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
-if($installTools -eq "n"){
+if($installTools -eq "y"){
     & $PSScriptRoot/install-tools.ps1
 }
 
@@ -27,7 +27,7 @@ $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainTe
 $ad = Read-Host "Does this computer have AD? [y/n] (Default: y/n)"
 
 & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
-if($ad -eq "Y"){
+if($ad -eq "y"){
     & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
 }
 
