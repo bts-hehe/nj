@@ -16,7 +16,7 @@ Write-Output "Running Win Script on $StartTime`n"
 & $PSScriptRoot/recon.ps1
 
 $installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
-if($installTools -eq "y"){
+if(($installTools -eq "y") -or ($installTools -eq "Y")){
     & $PSScriptRoot/install-tools.ps1
 }
 
@@ -27,7 +27,7 @@ $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainTe
 $ad = Read-Host "Does this computer have AD? [y/n] (Default: y/n)"
 
 & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
-if($ad -eq "y"){
+if(($ad -eq "y") -or ($ad -eq "Y")){
     & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
 }
 
@@ -46,7 +46,7 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 cmd /c (bcdedit /set {current} nx AlwaysOn)
 
 $firefox = Read-Host "Is Firefox on this system? [y/n] (Default: n)"
-if($firefox -eq "n"){
+if(($firefox -eq "n") -or ($firefox -eq "N")){
     & $PSScriptRoot/configure-firefox.ps1
 }
 
