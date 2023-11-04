@@ -61,5 +61,5 @@ $EndTime = Get-Date
 $ts = New-TimeSpan -Start $StartTime -End $EndTime
 Write-output "Elapsed Time (HH:MM:SS): $ts`n"
 Stop-Transcript
-Add-Content -Path "$PSScriptRoot/../logs/logs.txt" "Script finished at $EndTime"
+Add-Content -Path "$PSScriptRoot/../logs/log.txt" "Script finished at $EndTime"
 Invoke-Item "$PSScriptRoot/../logs/log.txt"
