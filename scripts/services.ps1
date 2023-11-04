@@ -1,12 +1,12 @@
 Write-Output "`n---Configuring Services"
-$KeepRDP = "N"
-$KeepFTP = "N"
-$KeepSMB = "N"
-$KeepRDP = Read-Host "Is RDP a critical service? [Y/N] (Default: N)"
-$KeepFTP = Read-Host "Is FTP a critical service? [Y/N] (Default: N)"
-$KeepSMB = Read-Host "Is SMB a critical service? [Y/N] (Default: N)"
+$KeepRDP = "n"
+$KeepFTP = "n"
+$KeepSMB = "n"
+$KeepRDP = Read-Host "Is RDP a critical service? [y/n] (Default: n)"
+$KeepFTP = Read-Host "Is FTP a critical service? [y/n] (Default: n)"
+$KeepSMB = Read-Host "Is SMB a critical service? [y/n] (Default: n)"
 
-if($KeepRDP -eq "Y"){
+if(($KeepRDP -eq "y") -or ($KeepRDP -eq "Y")){
     Write-Output "Keeping RDP"
     "TermService" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
@@ -14,13 +14,13 @@ if($KeepRDP -eq "Y"){
     Write-Output "Disabling RDP"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 1
 }
-if($KeepFTP -eq "Y"){
+if(($KeepFTP -eq "y") -or (KeepFTP -eq "Y")){
     Write-Output "Keeping FTP"
     "ftpsvc" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
 }else{
     Write-Output "Disabling FTP"
 }
-if($KeepSMB -eq "Y"){
+if(($KeepSMB -eq "y") -or ($KeepSMB -eq "Y")){
     Write-Output "Keeping SMB"
     "Server" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
 }else{
