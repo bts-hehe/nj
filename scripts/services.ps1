@@ -1,4 +1,6 @@
 Write-Output "`n---Configuring Services"
+$pwd = $MyInvocation.MyCommand.Path
+
 $KeepRDP = "N"
 $KeepFTP = "N"
 $KeepSMB = "N"
@@ -8,7 +10,7 @@ $KeepSMB = Read-Host "Is SMB a critical service? [Y/N] (Default: N)"
 
 if($KeepRDP -eq "Y"){
     Write-Output "Keeping RDP"
-    "TermService" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
+    "TermService" | Write-Output -FilePath "$pwd/../../enabled_services.txt"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
 }else{
     Write-Output "Disabling RDP"
@@ -16,19 +18,19 @@ if($KeepRDP -eq "Y"){
 }
 if($KeepFTP -eq "Y"){
     Write-Output "Keeping FTP"
-    "ftpsvc" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
+    "ftpsvc" | Write-Output -FilePath "$pwd/../../enabled_services.txt"
 }else{
     Write-Output "Disabling FTP"
 }
 if($KeepSMB -eq "Y"){
     Write-Output "Keeping SMB"
-    "Server" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
+    "Server" | Write-Output -FilePath "$pwd/../../enabled_services.txt"
 }else{
     Write-Output "Disabling SMB"
 }
 
-$EnabledServices = Get-Content -Path "$PSScriptRoot/../enabled_services.txt"
-$DisabledServices = Get-Content -Path "$PSScriptRoot/../disabled_services.txt"
+$EnabledServices = Get-Content -Path "$pwd/../../enabled_services.txt"
+$DisabledServices = Get-Content -Path "$pwd/../../disabled_services.txt"
 
 foreach($Service in $EnabledServices) {
     Write-Output "Starting $Service"

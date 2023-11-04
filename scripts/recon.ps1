@@ -6,9 +6,11 @@ Write-Output "`n---Collecting System Info"
 - log to recon.txt
 #>
 
+$pwd = $MyInvocation.MyCommand.Path
+
 #systeminfo.exe
-Get-ComputerInfo | Select-Object -ExpandProperty OSName | Out-File -FilePath $PSScriptRoot/../logs/os.txt
+Get-ComputerInfo | Select-Object -ExpandProperty OSName | Out-File -FilePath $pwd/../../logs/os.txt
 
 if(-not((Get-Content (Get-PSReadlineOption).HistorySavePath) -eq $null)){
-  Get-Content (Get-PSReadlineOption).HistorySavePath | Out-File -FilePath $PSScriptRoot/../logs/pshistory.txt
+  Get-Content (Get-PSReadlineOption).HistorySavePath | Out-File -FilePath $pwd/../../logs/pshistory.txt
 }

@@ -2,14 +2,16 @@ param (
     [Parameter(Mandatory)]
     [SecureString] $Password
 )
+$pwd = $MyInvocation.MyCommand.Path
+
 Write-Output "`n---Configuring AD Users"
 
 Disable-ADAccount "Administrator"
 Disable-ADAccount "Guest"
 Disable-ADAccount "DefaultAccount"
 
-$Users = Get-Content -Path "$PSScriptRoot/../users.txt" # list of authorized AD users from readme
-$Admins = Get-Content -Path "$PSScriptRoot/../admins.txt" # list of authorized AD admins from readme
+$Users = Get-Content -Path $pwd/../../users.txt # list of authorized AD users from readme
+$Admins = Get-Content -Path $pwd/../../admins.txt # list of authorized AD admins from readme
 # at this point, assumes configure-local-users has already been run, bc it needs users.txt to also contain admins.txt list
 
 $DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name
