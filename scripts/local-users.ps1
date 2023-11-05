@@ -21,7 +21,7 @@ foreach($User in $Users) {
         New-LocalUser -Name $User -Password $Password -PasswordNeverExpires 
     }
 }
-Get-LocalUser | Set-LocalUser -Password $Password # set everyone's password
+Get-LocalUser | Set-LocalUser -Password $Password -PasswordNeverExpires $false # set everyone's password
 foreach($User in $UsersOnImage) {
     if ($Users -contains $User){ # if user is authorized
         Enable-LocalUser $User
