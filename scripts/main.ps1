@@ -35,11 +35,14 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
 $ad = Read-Host "Does this computer have AD? [y/n] (Default: y/n)"
 
-& $PSScriptRoot/local-users.ps1 -Password $SecurePassword
-if(($ad -eq "y") -or ($ad -eq "Y")){
-    & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
+if(!((Get-Content -LiteralPath "$PSScriptRoot/../users.txt" -Raw) -match '\S') -and !((Get-Content -LiteralPath "$PSScriptRoot/../admins.txt" -Raw) -match '\S')){
+    & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
+    if(($ad -eq "y") -or ($ad -eq "Y")){
+        & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
+    }
+} else {
+    Write-Output "users.txt and admins.txt have not been filled in. Stopping." -ForegroundColor Red
 }
-
 & $PSScriptRoot/services.ps1
 
 & $PSScriptRoot/registry-hardening.ps1
