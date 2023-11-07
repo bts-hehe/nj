@@ -42,6 +42,8 @@ if(($ad -eq "y") -or ($ad -eq "Y")){
 
 & $PSScriptRoot/services.ps1
 
+& $PSScriptRoot/registry-hardening.ps1
+
 & $PSScriptRoot/remove-nondefaultshares.ps1 
 cmd /c (bcdedit /set {current} nx AlwaysOn)
 
