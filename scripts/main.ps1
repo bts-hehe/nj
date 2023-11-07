@@ -51,6 +51,10 @@ $firefox = Read-Host "Is Firefox on this system? [y/n] (Default: n)"
 if(($firefox -eq "Y") -or ($firefox -eq "y")){
     & $PSScriptRoot/configure-firefox.ps1
 }
+$chrome = Read-Host "Is Chrome on this system? [y/n] (Default: n)"
+if(($chrome -eq "Y") -or ($chrome -eq "y")){
+    reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v SyncDisabled /t REG_DWORD /d 1 # disable chrome sync
+}
 
 # view hidden files
 reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v Hidden /t REG_DWORD /d 1 /f
