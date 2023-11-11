@@ -41,3 +41,5 @@ foreach($DomainAdmin in $DomainUsersOnImage) {
         Write-Output "Removing user $DomainAdmin from admin" 
     }
 }
+
+Get-ADUser -Filter 'DoesNotRequirePreAuth -eq $true ' | Set-ADAccountControl -doesnotrequirepreauth $false # defend against AS_REP Roasting

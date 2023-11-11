@@ -13,6 +13,8 @@ if(($PSVersionTable.PSVersion | Select-object -expandproperty Major) -lt 3){ # c
 $StartTime = Get-Date
 Write-Output "Running Win Script on $StartTime`n"
 
+$productType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
+
 & $PSScriptRoot/recon.ps1
 
 $installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
@@ -33,18 +35,16 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 #>
 
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
-$ad = Read-Host "Does this computer have AD? [y/n] (Default: y/n)"
 
 if(!((Get-Content -LiteralPath "$PSScriptRoot/../users.txt" -Raw) -match '\S') -and !((Get-Content -LiteralPath "$PSScriptRoot/../admins.txt" -Raw) -match '\S')){
     & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
-    if(($ad -eq "y") -or ($ad -eq "Y")){
+    if(($productType -eq "2") -or ($ad -eq "Y")){
         & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
     }
 } else {
     Write-Output "users.txt and admins.txt have not been filled in. Stopping." -ForegroundColor Red
 }
 & $PSScriptRoot/services.ps1
-
 & $PSScriptRoot/registry-hardening.ps1
 
 & $PSScriptRoot/remove-nondefaultshares.ps1 
@@ -52,6 +52,7 @@ cmd /c (bcdedit /set {current} nx AlwaysOn)
 
 $firefox = Read-Host "Is Firefox on this system? [y/n] (Default: n)"
 if(($firefox -eq "Y") -or ($firefox -eq "y")){
+    Write-Output "Configuring Firefox"
     & $PSScriptRoot/configure-firefox.ps1
 }
 $chrome = Read-Host "Is Chrome on this system? [y/n] (Default: n)"
@@ -65,6 +66,8 @@ reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v Show
 taskkill /f /im explorer.exe
 Start-Sleep 2
 Start-Process explorer.exe
+
+# & $PSScriptRoot/service-enum.ps1 -productType $productType
 
 $EndTime = Get-Date
 $ts = New-TimeSpan -Start $StartTime -End $EndTime
