@@ -61,13 +61,6 @@ if(($firefox -eq "Y") -or ($firefox -eq "y")){
     & $PSScriptRoot/configure-firefox.ps1
 }
 
-# view hidden files
-reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v Hidden /t REG_DWORD /d 1 /f
-reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v ShowSuperHidden /t REG_DWORD /d 1 /f
-taskkill /f /im explorer.exe
-Start-Sleep 2
-Start-Process explorer.exe
-
 # & $PSScriptRoot/service-enum.ps1 -productType $productType
 
 $EndTime = Get-Date
