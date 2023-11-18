@@ -42,4 +42,5 @@ foreach($DomainAdmin in $DomainUsersOnImage) {
     }
 }
 
+Get-ADUser | Set-ADUser -PasswordNeverExpires:$false
 Get-ADUser -Filter 'DoesNotRequirePreAuth -eq $true ' | Set-ADAccountControl -doesnotrequirepreauth $false # defend against AS_REP Roasting
