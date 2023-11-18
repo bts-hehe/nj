@@ -9,17 +9,22 @@ if(($PSVersionTable.PSVersion | Select-object -expandproperty Major) -lt 3){ # c
     Write-Output "The Powershell version does not support PSScriptRoot. Stopping." 
     exit
 }
-
+$Internet = $true
+if($null -eq (Get-NetRoute | Where-Object DestinationPrefix -eq '0.0.0.0/0' | Get-NetIPInterface | Where-Object ConnectionState -eq 'Connected')){
+    Write-Output "The computer has no Internet. Adjusting script to compensate."
+    $Internet = $false
+}
 $StartTime = Get-Date
 Write-Output "Running Win Script on $StartTime`n"
 
 $productType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
 
 & $PSScriptRoot/recon.ps1
-
-$installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
-if(($installTools -eq "y") -or ($installTools -eq "Y")){
-    & $PSScriptRoot/install-tools.ps1
+if($Internet){
+    $installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
+    if(($installTools -eq "y") -or ($installTools -eq "Y")){
+        & $PSScriptRoot/install-tools.ps1
+    }
 }
 
 & $PSScriptRoot/enable-firewall.ps1
@@ -38,7 +43,7 @@ $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainTe
 
 if(!((Get-Content -LiteralPath "$PSScriptRoot/../users.txt" -Raw) -match '\S') -and !((Get-Content -LiteralPath "$PSScriptRoot/../admins.txt" -Raw) -match '\S')){
     & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
-    if(($productType -eq "2") -or ($ad -eq "Y")){
+    if($productType -eq "2"){
         & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
     }
 } else {
@@ -54,10 +59,6 @@ $firefox = Read-Host "Is Firefox on this system? [y/n] (Default: n)"
 if(($firefox -eq "Y") -or ($firefox -eq "y")){
     Write-Output "Configuring Firefox"
     & $PSScriptRoot/configure-firefox.ps1
-}
-$chrome = Read-Host "Is Chrome on this system? [y/n] (Default: n)"
-if(($chrome -eq "Y") -or ($chrome -eq "y")){
-    reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v SyncDisabled /t REG_DWORD /d 1 # disable chrome sync
 }
 
 # view hidden files
