@@ -18,7 +18,7 @@ Set-Content -Path "$PSScriptRoot/../logs/initial-local-users.txt" $UsersOnImage 
 foreach($User in $Users) {
     if ($UsersOnImage -notcontains $User){
         Write-Output "Adding user $User"
-        New-LocalUser -Name $User -Password $Password -PasswordNeverExpires 
+        New-LocalUser -Name $User -Password $Password
     }
 }
 Get-LocalUser | Set-LocalUser -Password $Password -PasswordNeverExpires $false # set everyone's password
