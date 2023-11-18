@@ -41,7 +41,7 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
 
-if(!((Get-Content -LiteralPath "$PSScriptRoot/../users.txt" -Raw) -match '\S') -and !((Get-Content -LiteralPath "$PSScriptRoot/../admins.txt" -Raw) -match '\S')){
+if(![String]::IsNullOrWhiteSpace("$PSScriptRoot/../users.txt") -and ![String]::IsNullOrWhiteSpace("$PSScriptRoot/../admins.txt" -Raw)){
     & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
     if($productType -eq "2"){
         & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
