@@ -21,7 +21,6 @@ foreach($DomainUser in $DomainUsers) {
         New-ADUser -Name $DomainUser -Password $Password
     }
 }
-Get-ADUser -Filter *| Set-ADAccountPassword -NewPassword $Password
 foreach($DomainUser in $DomainUsersOnImage) {
     if ($Users -contains $DomainUser){ # if user is authorized because the username was found in users.txt
         Enable-ADAccount -Identity $DomainUser
@@ -41,6 +40,6 @@ foreach($DomainAdmin in $DomainUsersOnImage) {
         Write-Output "Removing user $DomainAdmin from admin" 
     }
 }
-
-Get-ADUser | Set-ADUser -PasswordNeverExpires:$false
+Get-ADUser -Filter *| Set-ADAccountPassword -NewPassword $Password
+Get-ADUser -Filter *| Set-ADUser -PasswordNeverExpires:$false
 Get-ADUser -Filter 'DoesNotRequirePreAuth -eq $true ' | Set-ADAccountControl -doesnotrequirepreauth $false # defend against AS_REP Roasting
