@@ -12,4 +12,4 @@ Start-Service mpssvc
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Allow
 
-if((Get-Service -Name 'mpssvc').Status -ne $running){Write-Output "Windows Defender Firewall is broken and still not enabled."}
+if((Get-Service -Name 'mpssvc').Status -ne 'running'){Write-Output "Windows Defender Firewall is broken and still not enabled."}
