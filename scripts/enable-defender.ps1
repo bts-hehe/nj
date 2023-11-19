@@ -14,6 +14,10 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SubmitSam
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "DisableBlockAtFirstSeen" /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v "SpynetReporting" /t REG_DWORD /d 0 /f
 
+Set-MpPreference -EnableNetworkProtection Enabled
+Set-MpPreference -AllowNetworkProtectionOnWinServer $true
+Set-MpPreference -DisableNetworkProtectionPerfTelemetry $true
+
 if($null -ne (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)) {
     Write-Output "Removing all Defender Exclusions: "
     Write-Output (Get-MpPreference | Select-Object -Property ExclusionPath -ExpandProperty ExclusionPath)

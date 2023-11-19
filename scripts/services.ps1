@@ -19,6 +19,7 @@ if(($KeepFTP -eq "y") -or (KeepFTP -eq "Y")){
     "ftpsvc" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
 }else{
     Write-Output "Disabling FTP"
+    Uninstall-WindowsFeature Web-FTP-Server
 }
 if(($KeepSMB -eq "y") -or ($KeepSMB -eq "Y")){
     Write-Output "Keeping SMB"
