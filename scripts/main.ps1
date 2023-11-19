@@ -64,7 +64,7 @@ if(($firefox -eq "Y") -or ($firefox -eq "y")){
 # & $PSScriptRoot/service-enum.ps1 -productType $productType
 
 $EndTime = Get-Date
-$ts = New-TimeSpan -Start $StartTime -End $EndTime
+$ts = New-TimeSpan -Start $StartTime
 Write-output "Elapsed Time (HH:MM:SS): $ts`n"
 Stop-Transcript
 Add-Content -Path "$PSScriptRoot/../logs/log.txt" "Script finished at $EndTime"
