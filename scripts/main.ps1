@@ -30,7 +30,6 @@ if($Internet){
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1
 
-& $PSScriptRoot/import-gpo.ps1
 & $PSScriptRoot/import-secpol.ps1
 & $PSScriptRoot/auditpol.ps1
 & $PSScriptRoot/uac.ps1
@@ -49,6 +48,8 @@ if(![String]::IsNullOrWhiteSpace("$PSScriptRoot/../users.txt") -and ![String]::I
 } else {
     Write-Output "users.txt and admins.txt have not been filled in. Stopping." -ForegroundColor Red
 }
+
+# & $PSScriptRoot/service-enum.ps1 -productType $productType
 & $PSScriptRoot/services.ps1
 & $PSScriptRoot/registry-hardening.ps1
 
@@ -61,11 +62,11 @@ if(($firefox -eq "Y") -or ($firefox -eq "y")){
     & $PSScriptRoot/configure-firefox.ps1
 }
 
-# & $PSScriptRoot/service-enum.ps1 -productType $productType
+& $PSScriptRoot/import-gpo.ps1
 
 $EndTime = Get-Date
 $ts = New-TimeSpan -Start $StartTime
 Write-output "Elapsed Time (HH:MM:SS): $ts`n"
 Stop-Transcript
 Add-Content -Path "$PSScriptRoot/../logs/log.txt" "Script finished at $EndTime"
-Invoke-Item "$PSScriptRoot/../logs/log.txt"
+#Invoke-Item "$PSScriptRoot/../logs/log.txt"
