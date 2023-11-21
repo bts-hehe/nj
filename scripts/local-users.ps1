@@ -33,7 +33,8 @@ foreach($User in $UsersOnImage) {
         Write-Output "Disabling user $User"
         Disable-LocalUser $User
     }elseif(!(Get-LocalUser -Name $User).Enabled){
-        Enable-LocalUser $User
+        Write-Output "Enabling user $User"
+				Enable-LocalUser $User
     }
 }
 
