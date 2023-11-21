@@ -8,36 +8,48 @@ Disable-ADAccount "Administrator"
 Disable-ADAccount "Guest"
 Disable-ADAccount "DefaultAccount"
 
-$Users = Get-Content -Path "$PSScriptRoot/../users.txt" # list of authorized AD users from readme
-$Admins = Get-Content -Path "$PSScriptRoot/../admins.txt" # list of authorized AD admins from readme
+$DomainUsers = Get-Content -Path "$PSScriptRoot/../users.txt" # list of authorized AD users from readme
+$DomainAdmins = Get-Content -Path "$PSScriptRoot/../admins.txt" # list of authorized AD admins from readme
 # at this point, assumes configure-local-users has already been run, bc it needs users.txt to also contain admins.txt list
 
 $DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name
 Set-Content -Path "$PSScriptRoot/../logs/initial-ad-users.txt" $DomainUsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
 
-foreach($DomainUser in $Users) {
-    if ($UsersOnImage -notcontains $DomainUser){ # if user doesn't exist
+foreach($DomainUser in $DomainUsers) {
+    if ($DomainUsersOnImage -notcontains $DomainUser){ # if user doesn't exist
         Write-Output "Adding Domain User $DomainUser"
-        New-ADUser -Name $DomainUser -Password $Password
+        New-ADUser -Name $DomainUser 
     }
 }
+
+foreach($DomainUser in $DomainAdmins) {
+    if ($DomainUsersOnImage -notcontains $DomainUser){ # if user doesn't exist
+        Write-Output "Adding Domain User $DomainUser"
+        New-ADUser -Name $DomainUser 
+    }
+}
+
+$DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name
+
 foreach($DomainUser in $DomainUsersOnImage) {
-    if ($Users -contains $DomainUser){ # if user is authorized because the username was found in users.txt
-        Enable-ADAccount -Identity $DomainUser
-        Write-Output "Enabling user $DomainUser"
-    }else{
+    if (!($DomainUsers -contains $DomainUser) -and !($DomainAdmins -contains $DomainUser)){
         Write-Output "Disabling user $DomainUser"
         Disable-ADAccount $DomainUser
+    } else {
+        Enable-ADAccount -Identity $DomainUser
+        Write-Output "Enabling user $DomainUser"
     }
 }
-foreach($DomainAdmin in $DomainUsersOnImage) {
-    if ($Admins -contains $DomainAdmin){ # if user is authorized domain admin because username was found in admins.txt 
-        Enable-ADAccount -Identity $DomainUser
-        Add-ADGroupMember -Identity "Domain Admins" -Members $DomainAdmin
-        Write-Output "Adding user $DomainAdmin to admin" 
-    }else{
-        Remove-ADGroupMember -Identity "Domain Admins" -Members $DomainAdmin
-        Write-Output "Removing user $DomainAdmin from admin" 
+
+$AdminsOnImage = (Get-ADGroupMember -Identity "Domain Admins").name
+foreach($DomainUser in $DomainUsersOnImage) {
+    if ($DomainAdmins -contains $DomainUser){ # if user is authorized domain admin because username was found in admins.txt 
+        if(!($AdminsOnImage -contains ($DomainUser))){ # if user is auth admin and is not already added
+            Write-Output "Adding $User to Administrators Group"
+            Add-ADGroupMember -Identity "Domain Admins" -Members $DomainUser
+    }}elseif(($AdminsOnImage -contains ($DomainUser)) -and ($User -ne 'Administrator')){ # if user is unauthorized, in admin group, and is not 'Administrator'
+        Remove-ADGroupMember -Identity "Domain Admins" -Members $DomainUser
+        Write-Output "Removing user $DomainUser from admin" 
     }
 }
 Get-ADUser -Filter *| Set-ADAccountPassword -NewPassword $Password
