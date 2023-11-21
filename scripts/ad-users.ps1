@@ -15,7 +15,7 @@ $Admins = Get-Content -Path "$PSScriptRoot/../admins.txt" # list of authorized A
 $DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name
 Set-Content -Path "$PSScriptRoot/../logs/initial-ad-users.txt" $DomainUsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
 
-foreach($DomainUser in $DomainUsers) {
+foreach($DomainUser in $Users) {
     if ($UsersOnImage -notcontains $DomainUser){ # if user doesn't exist
         Write-Output "Adding Domain User $DomainUser"
         New-ADUser -Name $DomainUser -Password $Password
