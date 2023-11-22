@@ -6,7 +6,6 @@ Write-Output "`n---Configuring AD Users"
 
 Disable-ADAccount "Administrator"
 Disable-ADAccount "Guest"
-Disable-ADAccount "DefaultAccount"
 
 $DomainUsers = Get-Content -Path "$PSScriptRoot/../users.txt" # list of authorized AD users from readme
 $DomainAdmins = Get-Content -Path "$PSScriptRoot/../admins.txt" # list of authorized AD admins from readme

@@ -40,14 +40,14 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
 
-if(![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../users.txt")) -and ![String]::IsNullOrWhiteSpace((Get-Content -Path"$PSScriptRoot/../admins.txt"))){
+if(![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../users.txt")) -and ![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../admins.txt"))){
     if($productType -eq "2"){
         & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
     }else{
         & $PSScriptRoot/local-users.ps1 -Password $SecurePassword 
     }
 } else {
-    Write-Output "users.txt and admins.txt have not been filled in. Stopping." -ForegroundColor Red
+    Write-Output "users.txt and admins.txt have not been filled in. Stopping."
 }
 
 # & $PSScriptRoot/service-enum.ps1 -productType $productType
@@ -70,4 +70,3 @@ $ts = New-TimeSpan -Start $StartTime
 Write-output "Elapsed Time (HH:MM:SS): $ts`n"
 Stop-Transcript
 Add-Content -Path "$PSScriptRoot/../logs/log.txt" "Script finished at $EndTime"
-#Invoke-Item "$PSScriptRoot/../logs/log.txt"
