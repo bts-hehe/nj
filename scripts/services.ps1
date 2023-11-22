@@ -10,6 +10,7 @@ if(($KeepRDP -eq "y") -or ($KeepRDP -eq "Y")){
     Write-Output "Keeping RDP"
     "TermService" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
+    & $PSScriptRoot/harden-RDP.ps1
 }else{
     Write-Output "Disabling RDP"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 1
@@ -24,6 +25,7 @@ if(($KeepFTP -eq "y") -or (KeepFTP -eq "Y")){
 if(($KeepSMB -eq "y") -or ($KeepSMB -eq "Y")){
     Write-Output "Keeping SMB"
     "Server" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
+    & $PSScriptRoot/harden-SMB.ps1
 }else{
     Write-Output "Disabling SMB"
 }
