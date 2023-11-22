@@ -51,5 +51,5 @@ foreach($DomainUser in $DomainUsersOnImage) {
 }
 
 Get-ADUser -Filter *| Set-ADAccountPassword -NewPassword $Password
-Get-ADUser -Filter *| Set-ADUser -PasswordNeverExpires:$false
+Get-ADUser -Filter *| Set-ADUser -PasswordNeverExpires:$false -AllowReversiblePasswordEncryption $false -PasswordNotRequired $false
 Get-ADUser -Filter 'DoesNotRequirePreAuth -eq $true ' | Set-ADAccountControl -doesnotrequirepreauth $false # defend against AS_REP Roasting
