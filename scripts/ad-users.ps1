@@ -4,8 +4,6 @@ param (
 )
 Write-Output "`n---Configuring AD Users"
 
-Disable-ADAccount "Administrator"
-Disable-ADAccount "Guest"
 
 $DomainUsers = Get-Content -Path "$PSScriptRoot/../users.txt" # list of authorized AD users from readme
 $DomainAdmins = Get-Content -Path "$PSScriptRoot/../admins.txt" # list of authorized AD admins from readme
@@ -17,14 +15,14 @@ foreach($DomainUser in $DomainUsers) {
     if ($DomainUsersOnImage -notcontains $DomainUser){ # if user doesn't exist
         Write-Output "Adding Domain User $DomainUser"
         New-ADUser -Name $DomainUser -AllowReversiblePasswordEncryption $false -PasswordNeverExpires $false
-    }
+    } 
 }
 
 foreach($DomainUser in $DomainAdmins) {
     if ($DomainUsersOnImage -notcontains $DomainUser){ # if user doesn't exist
-        Write-Output "Adding Domain User $DomainUser"
+        Write-Output "Adding Domain Admin $DomainUser"
         New-ADUser -Name $DomainUser -AllowReversiblePasswordEncryption $false -PasswordNeverExpires $false
-    }
+    } 
 }
 
 $DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name # changes now, having added all users that need to exist
@@ -46,7 +44,7 @@ foreach($DomainUser in $DomainUsersOnImage) {
             Write-Output "Adding $DomainUser to Administrators Group"
             Add-ADGroupMember -Identity "Domain Admins" -Members $DomainUser
         }
-    } elseif(($AdminsOnImage -contains ($DomainUser)) -and ($User -ne 'Administrator')) { # if user is unauthorized, in admin group, and is not 'Administrator'
+    } elseif(($AdminsOnImage -contains ($DomainUser)) -and ($DomainUser -ne 'Administrator')) { # if user is unauthorized, in admin group, and is not 'Administrator'
         Write-Output "Removing $DomainUser from admin" 
         Remove-ADGroupMember -Identity "Domain Admins" -Members $DomainUser
     }
