@@ -17,7 +17,7 @@ if($null -eq (Get-NetRoute | Where-Object DestinationPrefix -eq '0.0.0.0/0' | Ge
 $StartTime = Get-Date
 Write-Output "Running Win Script on $StartTime`n"
 
-$productType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
+$productType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType # 1=workstation, 2=DC, 3=Server(not DC) 
 
 & $PSScriptRoot/recon.ps1
 if($Internet){
@@ -40,10 +40,11 @@ if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
 
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
 
-if(![String]::IsNullOrWhiteSpace("$PSScriptRoot/../users.txt") -and ![String]::IsNullOrWhiteSpace("$PSScriptRoot/../admins.txt")){
-    & $PSScriptRoot/local-users.ps1 -Password $SecurePassword
+if(![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../users.txt")) -and ![String]::IsNullOrWhiteSpace((Get-Content -Path"$PSScriptRoot/../admins.txt"))){
     if($productType -eq "2"){
         & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
+    }else{
+        & $PSScriptRoot/local-users.ps1 -Password $SecurePassword 
     }
 } else {
     Write-Output "users.txt and admins.txt have not been filled in. Stopping." -ForegroundColor Red

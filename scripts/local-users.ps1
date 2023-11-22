@@ -3,15 +3,11 @@ param (
     [SecureString] $Password
 )
 Write-Output "`n---Configuring Local Users"
-Disable-LocalUser -Name "Administrator"
-Disable-LocalUser -Name "Guest"
-Disable-LocalUser -Name "DefaultAccount"
 
 $Users = Get-Content -Path "$PSScriptRoot/../users.txt"
 $Admins = Get-Content -Path "$PSScriptRoot/../admins.txt"
 
 $UsersOnImage = Get-LocalUser | Select-Object -ExpandProperty name
-# $AdminsOnImage = Get-LocalGroupMember -Group "Administrators"
 Set-Content -Path "$PSScriptRoot/../logs/initial-local-users.txt" $UsersOnImage # log initial local users on image to file in case we mess up or wanna check smth
 
 foreach($User in $Users) {
@@ -34,7 +30,7 @@ foreach($User in $UsersOnImage) {
         Disable-LocalUser $User
     }elseif(!(Get-LocalUser -Name $User).Enabled){
         Write-Output "Enabling user $User"
-				Enable-LocalUser $User
+		Enable-LocalUser $User
     }
 }
 
