@@ -27,6 +27,9 @@ if($Internet){
     }
 }
 
+# & $PSScriptRoot/service-enum.ps1 -productType $productType
+& $PSScriptRoot/services.ps1
+
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1
 
@@ -50,8 +53,6 @@ if(![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../users.txt"
     Write-Output "users.txt and admins.txt have not been filled in. Stopping."
 }
 
-# & $PSScriptRoot/service-enum.ps1 -productType $productType
-& $PSScriptRoot/services.ps1
 & $PSScriptRoot/registry-hardening.ps1
 
 & $PSScriptRoot/remove-nondefaultshares.ps1 
