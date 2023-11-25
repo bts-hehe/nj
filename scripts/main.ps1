@@ -28,7 +28,7 @@ if($Internet){
 }
 
 # & $PSScriptRoot/service-enum.ps1 -productType $productType
-& $PSScriptRoot/services.ps1
+& $PSScriptRoot/services.ps1 -productType $productType
 
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1

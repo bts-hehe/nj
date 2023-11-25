@@ -1,12 +1,14 @@
+param (
+    [Parameter(Mandatory)]
+    [int] $ProductType
+)
 Write-Output "`n---Configuring Services"
 $KeepRDP = "n"
 $KeepFTP = "n"
 $KeepSMB = "n"
-$KeepADWS = "n"
 $KeepRDP = Read-Host "Is RDP a critical service? [y/n] (Default: n)"
 $KeepFTP = Read-Host "Is FTP a critical service? [y/n] (Default: n)"
 $KeepSMB = Read-Host "Is SMB a critical service? [y/n] (Default: n)"
-$KeepADWS = Read-Host "Is ADWS a critical service? [y/n] (Default: n)"
 
 if(($KeepRDP -eq "y") -or ($KeepRDP -eq "Y")){
     Write-Output "Keeping RDP"
@@ -31,13 +33,13 @@ if(($KeepSMB -eq "y") -or ($KeepSMB -eq "Y")){
 }else{
     Write-Output "Disabling SMB"
 }
-if(($KeepADWS -eq "y") -or ($KeepADWS -eq "Y")){
+
+if($productType -eq 2){
     Write-Output "Keeping ADWS"
     "ADWS" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
 }else{
     Write-Output "Disabling ADWS"
     "ADWS" | Write-Output -FilePath "$PSScriptRoot/../disabled_services.txt"
-
 }
 
 $EnabledServices = Get-Content -Path "$PSScriptRoot/../enabled_services.txt"
