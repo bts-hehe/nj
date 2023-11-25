@@ -1,4 +1,3 @@
-ADWS
 ALG
 AppVClient
 BTAGService
