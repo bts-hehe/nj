@@ -8,12 +8,12 @@ foreach($line in $services){
 }
 
 if($productType -eq 1){
-    Write-Output (compare-object (get-content $PSScriptRoot/baseline/services.txt) (get-content $PSScriptRoot/baseline/win10-default-services.txt))
+    Add-Content -Path $PSScriptRoot/../logs/service_diff_10.txt -Value (compare-object (get-content $PSScriptRoot/baseline/image-services.txt) (get-content $PSScriptRoot/baseline/win10-default-services.txt))
 } else {
     $serverVersion = Read-Host "Server 19 or 22?: [19/22] (Default: 22)"
     if(($serverVersion -eq "19")){
-        Write-Output (compare-object (get-content $PSScriptRoot/baseline/services.txt) (get-content $PSScriptRoot/baseline/server19-default-services.txt))
+        Add-Content -Path $PSScriptRoot/../logs/service_diff_19.txt -Value (compare-object (get-content $PSScriptRoot/baseline/image-services.txt) (get-content $PSScriptRoot/baseline/server19-default-services.txt))
     } else {
-        Write-Output (compare-object (get-content $PSScriptRoot/baseline/services.txt) (get-content $PSScriptRoot/baseline/server22-default-services.txt))
+        Add-Content -Path $PSScriptRoot/../logs/service_diff_22.txt (compare-object (get-content $PSScriptRoot/baseline/image-services.txt) (get-content $PSScriptRoot/baseline/server22-default-services.txt))
     }
 }
