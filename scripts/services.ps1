@@ -17,6 +17,7 @@ if(($KeepRDP -eq "y") -or ($KeepRDP -eq "Y")){
     & $PSScriptRoot/harden-RDP.ps1
 }else{
     Write-Output "Disabling RDP"
+    "TermService" | Write-Output -FilePath "$PSScriptRoot/../disabled_services.txt"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 1
 }
 if(($KeepFTP -eq "y") -or (KeepFTP -eq "Y")){
@@ -24,6 +25,7 @@ if(($KeepFTP -eq "y") -or (KeepFTP -eq "Y")){
     "ftpsvc" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
 }else{
     Write-Output "Disabling FTP"
+    "ftpsvc" | Write-Output -FilePath "$PSScriptRoot/../disabled_services.txt"
     Uninstall-WindowsFeature Web-FTP-Server
 }
 if(($KeepSMB -eq "y") -or ($KeepSMB -eq "Y")){
@@ -32,6 +34,7 @@ if(($KeepSMB -eq "y") -or ($KeepSMB -eq "Y")){
     & $PSScriptRoot/harden-SMB.ps1
 }else{
     Write-Output "Disabling SMB"
+    "Server" | Write-Output -FilePath "$PSScriptRoot/../disabled_services.txt"
 }
 
 if($productType -eq 2){
