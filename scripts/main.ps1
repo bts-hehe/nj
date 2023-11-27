@@ -19,7 +19,8 @@ Write-Output "Running Win Script on $StartTime`n"
 
 $productType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType # 1=workstation, 2=DC, 3=Server(not DC) 
 
-& $PSScriptRoot/recon.ps1
+& $PSScriptRoot/recon.ps1 # does essentially nothing atm
+
 if($Internet){
     $installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
     if(($installTools -eq "y") -or ($installTools -eq "Y")){
@@ -27,7 +28,7 @@ if($Internet){
     }
 }
 
-# & $PSScriptRoot/service-enum.ps1 -productType $productType
+& $PSScriptRoot/service-enum.ps1 -productType $productType
 & $PSScriptRoot/services.ps1 -productType $productType
 
 & $PSScriptRoot/enable-firewall.ps1
@@ -36,10 +37,6 @@ if($Internet){
 & $PSScriptRoot/import-secpol.ps1
 & $PSScriptRoot/auditpol.ps1
 & $PSScriptRoot/uac.ps1
-<#
-add check for if gpo break -> prob try/catch?
-if gpo AND secpol breaks, run uac.ps1, auditpol.ps1
-#>
 
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
 
