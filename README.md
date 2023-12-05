@@ -12,4 +12,3 @@ This is a script meant to harden your windows server or workstation.
   The script will try to import a GPO last. You can start doing your own thing by then, even before the GPO finishes importing. The output will be logged to `log.txt` in the `logs` folder. 
 
 ## References
-- [SMB Hardening](https://github.com/ojas623/CYEE-scripts/blob/main/Windows%2010/application%20security/smbConfig.ps1)
