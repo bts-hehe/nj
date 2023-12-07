@@ -37,7 +37,7 @@ if(($KeepSMB -eq "y") -or ($KeepSMB -eq "Y")){
     "Server" | Write-Output -FilePath "$PSScriptRoot/../disabled_services.txt"
 }
 
-if($productType -eq 2){
+if($ProductType -eq 2){
     Write-Output "Keeping ADWS"
     "ADWS" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
 }else{

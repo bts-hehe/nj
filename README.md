@@ -9,7 +9,8 @@ This is a script meant to harden your windows server or workstation.
   Set-ExecutionPolicy Unrestricted -Confirm -Force
   .\scripts\main.ps1
   ```
-  The script will try to import a GPO last. You can start doing your own thing by then, even before the GPO finishes importing. The output will be logged to `log.txt` in the `logs` folder. 
+  The script will try to import a GPO last. You can start doing your own thing by then, even before the GPO finishes importing. The output will be logged to `script_log.txt` in the `logs` folder. 
+
+If you want to look for media files, run `media.bat`, which will log to a folder on your user's desktop.
 
 ## References
-- [SMB Hardening](https://github.com/ojas623/CYEE-scripts/blob/main/Windows%2010/application%20security/smbConfig.ps1)

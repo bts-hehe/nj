@@ -17,7 +17,7 @@ if($null -eq (Get-NetRoute | Where-Object DestinationPrefix -eq '0.0.0.0/0' | Ge
 $StartTime = Get-Date
 Write-Output "Running Win Script on $StartTime`n"
 
-$productType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType # 1=workstation, 2=DC, 3=Server(not DC) 
+$ProductType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType # 1=workstation, 2=DC, 3=Server(not DC) 
 
 & $PSScriptRoot/recon.ps1 # does essentially nothing atm
 
@@ -25,11 +25,11 @@ if($Internet){
     $installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
     if(($installTools -eq "y") -or ($installTools -eq "Y")){
         & $PSScriptRoot/install-tools.ps1
-    }
+    }else{Write-Output "Tools have not been installed."}
 }
 
-& $PSScriptRoot/service-enum.ps1 -productType $productType
-& $PSScriptRoot/services.ps1 -productType $productType
+& $PSScriptRoot/service-enum.ps1 -productType $ProductType
+& $PSScriptRoot/services.ps1 -productType $ProductType
 
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1
@@ -37,11 +37,12 @@ if($Internet){
 & $PSScriptRoot/import-secpol.ps1
 & $PSScriptRoot/auditpol.ps1
 & $PSScriptRoot/uac.ps1
+& $PSScriptRoot/registry-hardening.ps1 -productType $ProductType
 
+# configuring users/passwords
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
-
 if(![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../users.txt")) -and ![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../admins.txt"))){
-    if($productType -eq "2"){
+    if($ProductType -eq "2"){
         & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
     }else{
         & $PSScriptRoot/local-users.ps1 -Password $SecurePassword 
@@ -50,21 +51,25 @@ if(![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../users.txt"
     Write-Output "users.txt and admins.txt have not been filled in. Stopping."
 }
 
-& $PSScriptRoot/registry-hardening.ps1
-
 & $PSScriptRoot/remove-nondefaultshares.ps1 
 cmd /c (bcdedit /set {current} nx AlwaysOn)
 
 $firefox = Read-Host "Is Firefox on this system? [y/n] (Default: n)"
 if(($firefox -eq "Y") -or ($firefox -eq "y")){
-    Write-Output "Configuring Firefox"
+    Write-Output "Configuring Firefox settings"
     & $PSScriptRoot/configure-firefox.ps1
 }
 
-& $PSScriptRoot/import-gpo.ps1
+#Disable IPv6 Services --> Does not disable IPv6 interface
+Write-Output "Disabling IPv6 Services"
+netsh interface teredo set state disabled
+netsh interface ipv6 6to4 set state state=disabled undoonstop=disabled
+netsh interface ipv6 isatap set state state=disabled
+
+& $PSScriptRoot/import-gpo.ps1 -productType $ProductType
 
 $EndTime = Get-Date
 $ts = New-TimeSpan -Start $StartTime
 Write-output "Elapsed Time (HH:MM:SS): $ts`n"
 Stop-Transcript
-Add-Content -Path "$PSScriptRoot/../logs/log.txt" "Script finished at $EndTime"
+Add-Content -Path "$PSScriptRoot/../logs/script_log.txt" "Script finished at $EndTime"
