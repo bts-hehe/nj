@@ -54,3 +54,4 @@ vmicvss
 wercplsupport
 WinRM
 wisvc
+w3svc
