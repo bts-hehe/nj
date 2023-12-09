@@ -19,7 +19,7 @@ Write-Output "Running Win Script on $StartTime`n"
 
 $ProductType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType # 1=workstation, 2=DC, 3=Server(not DC) 
 
-& $PSScriptRoot/recon.ps1 # does essentially nothing atm
+# & $PSScriptRoot/recon.ps1 # does essentially nothing atm
 
 if($Internet){
     $installTools = Read-Host "Install tools? May take a while: [y/n] (Default: n)"
