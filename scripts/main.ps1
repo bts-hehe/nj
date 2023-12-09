@@ -9,11 +9,16 @@ if(($PSVersionTable.PSVersion | Select-object -expandproperty Major) -lt 3){ # c
     Write-Output "The Powershell version does not support PSScriptRoot. Stopping." 
     exit
 }
+if([String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../users.txt")) -or [String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../admins.txt"))){
+    Write-Output "users.txt and admins.txt have not been filled in. Stopping."
+    exit
+}
 $Internet = $true
 if($null -eq (Get-NetRoute | Where-Object DestinationPrefix -eq '0.0.0.0/0' | Get-NetIPInterface | Where-Object ConnectionState -eq 'Connected')){
     Write-Output "The computer has no Internet. Adjusting script to compensate."
     $Internet = $false
 }
+
 $StartTime = Get-Date
 Write-Output "Running Win Script on $StartTime`n"
 
@@ -39,16 +44,12 @@ if($Internet){
 & $PSScriptRoot/uac.ps1
 & $PSScriptRoot/registry-hardening.ps1 -productType $ProductType
 
-# configuring users/passwords
+# configuring users/passwords, assumes users.txt and admins.txt have been filled in already, bc there's a check
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
-if(![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../users.txt")) -and ![String]::IsNullOrWhiteSpace((Get-Content -Path "$PSScriptRoot/../admins.txt"))){
-    if($ProductType -eq "2"){
-        & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
-    }else{
-        & $PSScriptRoot/local-users.ps1 -Password $SecurePassword 
-    }
-} else {
-    Write-Output "users.txt and admins.txt have not been filled in. Stopping."
+if($ProductType -eq "2"){
+    & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
+}else{
+    & $PSScriptRoot/local-users.ps1 -Password $SecurePassword 
 }
 
 & $PSScriptRoot/remove-nondefaultshares.ps1 
