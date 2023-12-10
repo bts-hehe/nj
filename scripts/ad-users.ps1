@@ -6,8 +6,7 @@ Write-Output "`n---Configuring AD Users"
 
 $DomainUsers = Get-Content -Path "$PSScriptRoot/../users.txt" # list of authorized AD users from readme
 $DomainAdmins = Get-Content -Path "$PSScriptRoot/../admins.txt" # list of authorized AD admins from readme
-Get-ADUser -Filter *| Set-ADObject -ProtectedFromAccidentalDeletion:$false # no object (user) is prevent from accidental deletion and can all be disabled
-
+Get-ADUser -Filter * | Set-ADObject -ProtectedFromAccidentalDeletion:$false # no object (user) is prevent from accidental deletion and can all be disabled
 
 $DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name 
 Set-Content -Path "$PSScriptRoot/../logs/initial-ad-users.txt" $DomainUsersOnImage # log initial AD users on image to file in case we mess up or wanna check smth
@@ -20,13 +19,13 @@ foreach($DomainUser in $DomainUsers) {
 }
 
 foreach($DomainUser in $DomainAdmins) {
-    if ($DomainUsersOnImage -notcontains $DomainUser){ # if user doesn't exist
+    if ($DomainUsersOnImage -notcontains $DomainUser){ # if admin doesn't exist
         Write-Output "Adding Domain Admin $DomainUser"
         New-ADUser -Name $DomainUser -AccountPassword $Password -AllowReversiblePasswordEncryption $false -PasswordNeverExpires $false
     } 
 }
 
-$DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name # changes now, having added all users that need to exist
+$DomainUsersOnImage = Get-ADUser -Filter * | Select-Object -ExpandProperty name # list of users changes now, having added all users that need to exist
 
 foreach($DomainUser in $DomainUsersOnImage) {
     if (!($DomainUsers -contains $DomainUser) -and !($DomainAdmins -contains $DomainUser)){
@@ -51,9 +50,8 @@ foreach($DomainUser in $DomainUsersOnImage) {
     }
 }
 
-Get-ADUser -Filter *| Set-ADAccountPassword -NewPassword $Password
-Get-ADUser -Filter *| Set-ADUser -PasswordNeverExpires:$false -AllowReversiblePasswordEncryption $false -PasswordNotRequired $false -AccountNotDelegated $True
+Get-ADUser -Filter * | Set-ADAccountPassword -NewPassword $Password
+Get-ADUser -Filter * | Set-ADUser -PasswordNeverExpires:$false -AllowReversiblePasswordEncryption $false -PasswordNotRequired $false -AccountNotDelegated $True
 Get-ADUser -Filter 'DoesNotRequirePreAuth -eq $true ' | Set-ADAccountControl -doesnotrequirepreauth $false # defend against AS_REP Roasting
-
 
 Get-ADGroup -Filter * | Set-ADGroup -AuthType 0 -ManagedBy "" 
