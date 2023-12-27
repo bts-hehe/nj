@@ -9,5 +9,4 @@ auditpol /set /category:"Policy Change" /success:enable /failure:enable
 auditpol /set /category:"Privilege Use" /success:enable /failure:enable
 auditpol /set /category:"System" /success:enable /failure:enable
 
-    auditpol /set /category:* /success:enable failure:enable
-   
+auditpol /set /category:* /success:enable /failure:enable
