@@ -46,7 +46,7 @@ if($Internet){
 
 # configuring users/passwords, assumes users.txt and admins.txt have been filled in already, bc there's a check
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
-    if(($ProductType -eq "1") -or ($productType -eq "3")){
+    if(($ProductType -eq "1") -or ($ProductType -eq "3")){
     & $PSScriptRoot/local-users.ps1 -Password $SecurePassword 
     else{
     & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
