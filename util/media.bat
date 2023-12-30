@@ -1,5 +1,6 @@
 cd C:\Users
 mkdir %userprofile%\Desktop\media-files
+dir /a /s /b *.ps1 | findstr /e .ps1 > %userprofile%\Desktop\media-files\ps1.txt
 dir /a /s /b *.txt | findstr /e .txt > %userprofile%\Desktop\media-files\txt.txt
 dir /a /s /b *.mp3 | findstr /e .mp3 > %userprofile%\Desktop\media-files\mp3.txt
 dir /a /s /b *.wav | findstr /e .wav > %userprofile%\Desktop\media-files\wav.txt
