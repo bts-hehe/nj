@@ -38,6 +38,7 @@ foreach($DomainUser in $DomainUsersOnImage) {
 
 $AdminsOnImage = (Get-ADGroupMember -Identity "Domain Admins").samaccountname # checks actual username instead of display name
 foreach($DomainUser in $DomainUsersOnImage) {
+    Get-ADUser $DomainUser -Properties sidhistory | forEach-Object {Set-ADUser $_ -remove @{sidhistory=$_.sidhistory.value}} # remove sd history from each user
     if ($DomainAdmins -contains $DomainUser){ # if user is authorized domain admin because username was found in admins.txt 
         if(!($AdminsOnImage -contains ($DomainUser))){ # if user is auth admin and is not already added
             Write-Output "Adding $DomainUser to Domain Admins group"
@@ -48,6 +49,7 @@ foreach($DomainUser in $DomainUsersOnImage) {
         Remove-ADGroupMember -Identity "Domain Admins" -Members $DomainUser
     }
 }
+
 
 Get-ADUser -Filter *| Set-ADAccountPassword -NewPassword $Password
 Get-ADUser -Filter *| Set-ADUser -PasswordNeverExpires:$false -AllowReversiblePasswordEncryption $false -PasswordNotRequired $false
