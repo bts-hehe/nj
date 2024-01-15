@@ -48,10 +48,10 @@ if($Internet){
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
     if(($ProductType -eq "1") -or ($ProductType -eq "3")){
     & $PSScriptRoot/local-users.ps1 -Password $SecurePassword 
-    else{
+    }else{
     & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
     }
-}
+
 
 & $PSScriptRoot/remove-nondefaultshares.ps1 
 cmd /c (bcdedit /set {current} nx AlwaysOn)
