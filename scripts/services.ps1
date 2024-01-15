@@ -22,7 +22,7 @@ if(($KeepRDP -eq "y") -or ($KeepRDP -eq "Y")){
     "TermService" | Write-Output -FilePath "$PSScriptRoot/../disabled_services.txt"
     Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 1
 }
-if(($KeepFTP -eq "y") -or (KeepFTP -eq "Y")){
+if(($KeepFTP -eq "y") -or ($KeepFTP -eq "Y")){
     Write-Output "Keeping FTP"
     "ftpsvc" | Write-Output -FilePath "$PSScriptRoot/../enabled_services.txt"
 }else{
