@@ -1,4 +1,4 @@
-Write-Output "`n---Hardening the SMB service, uses SMB 2"
+Write-Output "`n---Hardening SMB, uses version 2"
 
 # pulled entirely from https://github.com/ojas623/CYEE-scripts/blob/main/Windows%2010/application%20security/smbConfig.ps1
 
