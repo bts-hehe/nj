@@ -52,7 +52,6 @@ $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainTe
     & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
     }
 
-
 & $PSScriptRoot/remove-nondefaultshares.ps1 
 cmd /c (bcdedit /set {current} nx AlwaysOn)
 

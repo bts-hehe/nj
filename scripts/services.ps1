@@ -7,10 +7,12 @@ $KeepRDP = "n"
 $KeepFTP = "n"
 $KeepSMB = "n"
 $KeepIIS = "n"
+$KeepDNS = "n"
 $KeepRDP = Read-Host "Is RDP a critical service? [y/n] (Default: n)"
 $KeepFTP = Read-Host "Is FTP a critical service? [y/n] (Default: n)"
 $KeepSMB = Read-Host "Is SMB a critical service? [y/n] (Default: n)"
 $KeepIIS = Read-Host "Is IIS a critical service? [y/n] (Default: n)"
+$KeepDNS = Read-Host "Is DNS a critical service? [y/n] (Default: n)"
 
 if(($KeepRDP -eq "y") -or ($KeepRDP -eq "Y")){
     Write-Output "Keeping RDP"
@@ -46,9 +48,17 @@ if($ProductType -eq 2){
     Write-Output "Disabling ADWS"
     "ADWS" | Write-Output -FilePath "$PSScriptRoot/../disabled_services.txt"
 }
-if(($KeepIIS -eq "y") -or ($KeepIIS -eq "Y")){
+
+if(($KeepIIS -eq "Y") -or ($KeepIIS -eq "y")){
+    Write-Output "Keeping and hardening IIS"
+    
+}else{
     Write-Output "Disabling IIS"
     "w3svc" | Write-Output -FilePath "$PSScriptRoot/../disabled_services.txt"
+}
+
+if(($KeepDNS -eq "y") -or ($KeepDNS -eq "Y")){
+    & $PSScriptRoot/harden-DNS.ps1
 }
 
 $EnabledServices = Get-Content -Path "$PSScriptRoot/../enabled_services.txt"
