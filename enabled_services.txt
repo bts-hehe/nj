@@ -40,7 +40,6 @@ Schedule
 SENS
 ServerManagementGateway
 ShellHWDetection
-Spooler
 sppsvc
 SysMain
 SystemEventsBroker
