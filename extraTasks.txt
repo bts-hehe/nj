@@ -1,0 +1,7 @@
+Scorpio Scoring Engine
+Alarm Service
+MNO Metadata Parser
+UpdateSrvc
+HeadsetButtonPress
+Firefox Background Update E7CF176E110C211B
+Firefox Default Browser Agent E7CF176E110C211B
