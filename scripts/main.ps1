@@ -33,28 +33,30 @@ if($Internet){
     }else{Write-Output "Tools have not been installed."}
 }
 
-& $PSScriptRoot/service-enum.ps1 -productType $ProductType
 & $PSScriptRoot/services.ps1 -productType $ProductType
 
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1
-
-& $PSScriptRoot/task-stuff.ps1
 & $PSScriptRoot/import-secpol.ps1
 & $PSScriptRoot/auditpol.ps1
 & $PSScriptRoot/uac.ps1
 & $PSScriptRoot/registry-hardening.ps1 -productType $ProductType
 
+# utilities
+& $PSScriptRoot/task-stuff.ps1
+& $PSScriptRoot/service-enum.ps1 -productType $ProductType
+cmd.exe /c "$PSScriptRoot/../util/media.bat"
+
 # configuring users/passwords, assumes users.txt and admins.txt have been filled in already, bc there's a check
 $SecurePassword = ConvertTo-SecureString -String 'CyberPatriot123!@#' -AsPlainText -Force
-    if(($ProductType -eq "1") -or ($ProductType -eq "3")){
+if(($ProductType -eq "1") -or ($ProductType -eq "3")){
     & $PSScriptRoot/local-users.ps1 -Password $SecurePassword 
-    }else{
+}else{
     & $PSScriptRoot/ad-users.ps1 -Password $SecurePassword
-    }
+}
 
 & $PSScriptRoot/remove-nondefaultshares.ps1 
-cmd /c (bcdedit /set {current} nx AlwaysOn)
+cmd.exe /c "bcdedit /set {current} nx AlwaysOn" 
 
 $firefox = Read-Host "Is Firefox on this system? [y/n] (Default: n)"
 if(($firefox -eq "Y") -or ($firefox -eq "y")){
