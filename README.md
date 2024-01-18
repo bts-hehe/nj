@@ -13,4 +13,9 @@ This is a script meant to harden your windows server or workstation.
 
 If you want to look for media files, run `media.bat`, which will log to a folder on your user's desktop.
 
+## GPOs
+`{9AA00A8B-E75B-452C-B263-D4FA774C511E}` is Kile and Nick's Win10UltGPO
+`{EE1CF134-A163-4488-8832-D7CEAC60FB43}` is Olric's old one
+`{79677B19-3111-423D-AB81-B72CBD52008D}` is the new one made by Olric and Shirley
+
 ## References
