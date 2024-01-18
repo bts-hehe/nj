@@ -39,6 +39,7 @@ if($Internet){
 & $PSScriptRoot/enable-firewall.ps1
 & $PSScriptRoot/enable-defender.ps1
 
+& $PSScriptRoot/task-stuff.ps1
 & $PSScriptRoot/import-secpol.ps1
 & $PSScriptRoot/auditpol.ps1
 & $PSScriptRoot/uac.ps1
