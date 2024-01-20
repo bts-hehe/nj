@@ -4,10 +4,10 @@ param (
 )
 
 if(($ProductType -eq "1") -or ($ProductType -eq "3")){
-    $defaultTasks = Get-Content -Path "$PSScriptRoot/../win10 tasks.txt" #replace with relative path name 
+    $defaultTasks = Get-Content -Path "$PSScriptRoot/../win10-tasks.txt" #replace with relative path name 
     Write-Output "comparing against win10 tasks" 
 }else{
-    $defaultTasks = Get-Content -Path "$PSScriptRoot/../srv22 tasks.txt"
+    $defaultTasks = Get-Content -Path "$PSScriptRoot/../srv22-tasks.txt"
     Write-Output "comparing against srv22 tasks" 
 }
 
