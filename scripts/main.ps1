@@ -43,7 +43,7 @@ if($Internet){
 & $PSScriptRoot/registry-hardening.ps1 -productType $ProductType
 
 # utilities
-& $PSScriptRoot/task-stuff.ps1
+& $PSScriptRoot/task-stuff.ps1 -productType $ProductType
 & $PSScriptRoot/service-enum.ps1 -productType $ProductType
 cmd.exe /c "$PSScriptRoot/../util/media.bat"
 
