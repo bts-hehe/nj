@@ -1,5 +1,5 @@
 # win
-This is a script meant to harden your Windows server or workstation.
+This is a script to harden your Windows server or workstation.
 
 ## instructions
 1. Download as zip. It'll be named ```win-main```.
